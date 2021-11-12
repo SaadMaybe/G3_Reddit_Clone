@@ -3,5 +3,5 @@
 int main()
 {
     cout<<"Hellwow";
-    cout << "Saad the great !!!"<<endl;
+    cout << "Genghis Khan died for your sins"<<endl;
 }
