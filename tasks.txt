@@ -1,0 +1,7 @@
+tasks:
+login to an account
+signup/create an account
+create a subreddit
+view as guest
+join a subreddit
+leave a subreddit
