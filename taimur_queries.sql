@@ -1,0 +1,1 @@
+insert into something somethin where something is sometin and sumthin
