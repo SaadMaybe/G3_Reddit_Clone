@@ -31,7 +31,7 @@ def signup():
     #success = False
     
     try:
-        cursor.execute('''INSERT INTO reddit2.users VALUES(%s, %s, %s)''', (username, 0, passwd))
+        cursor.execute("INSERT INTO reddit2.users VALUES(%s, %s, %s)", (username, 0, passwd))
         mysql.connection.commit()
     except Exception as it_is_what_it_is:
         print("excepion caught")
