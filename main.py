@@ -11,20 +11,7 @@ app.config['MYSQL_DB'] = 'reddit2'
 
 mysql = MySQL(app)
 
-@app.route("/")
-def home():
-    cursor = mysql.connection.cursor()
-    #cursor.execute('''INSERT INTO reddit2.users VALUES('saad', 1234, 0)''')
-    # cursor1 = mysql.connection.cursor()
-    # cursor1.execute('select * from reddit2.users')
-    # mysql.connection.commit()
-    
-    # for x in cursor1:
-    #     print(x)
-    return render_template("login.html")
-
-@app.route("/signup.html")
-def signup():
+def signup_case(username="rrreeewewewe", passwd= "223313131"):
     cursor = mysql.connection.cursor()
     username = "user_name"
     passwd = "blady"
@@ -51,6 +38,22 @@ def signup():
     #     print(x)
     
     
+
+@app.route("/")
+def home():
+    cursor = mysql.connection.cursor()
+    #cursor.execute('''INSERT INTO reddit2.users VALUES('saad', 1234, 0)''')
+    # cursor1 = mysql.connection.cursor()
+    # cursor1.execute('select * from reddit2.users')
+    # mysql.connection.commit()
+    
+    # for x in cursor1:
+    #     print(x)
+    return render_template("login.html")
+
+@app.route("/signup.html")
+def signup():
+    signup_case("random name", "random pwd")
     return render_template("signup.html")
 
 
