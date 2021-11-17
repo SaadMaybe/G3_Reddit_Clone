@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '33e0a108'
+app.config['MYSQL_PASSWORD'] = '<]^7f[R2<n'
 app.config['MYSQL_DB'] = 'reddit2'
 
 mysql = MySQL(app)
@@ -37,7 +37,17 @@ def signup_case(username="rrreeewewewe", passwd= "223313131"):
     # for x in cursor1:
     #     print(x)
     
+#@app.route("/login.html")
+def login():
+    cursor = mysql.connection.cursor()
+    input_user = request.values.get('username', 'bruh')
+    input_password = request.values.get('password', 'bruh')
+    cursor.execute('''SELECT username, password FROM reddit2.users WHERE username=%s AND password=%s''', (input_user, input_password))
     
+    if cursor.rowcount == 0:
+        print("Incorrect username or password")
+    else:
+        return True
 
 @app.route("/")
 def home():
@@ -49,6 +59,7 @@ def home():
     
     # for x in cursor1:
     #     print(x)
+    login()
     return render_template("login.html")
 
 @app.route("/signup.html")
