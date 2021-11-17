@@ -13,10 +13,11 @@ mysql = MySQL(app)
 @app.route("/")
 def home():
     cursor = mysql.connection.cursor()
-    cursor.execute('INSERT INTO reddit2.users VALUES(saad, 1234, 0)')
+    cursor.execute('''INSERT INTO reddit2.users VALUES('saad', 1234, 0)''')
     cursor1 = mysql.connection.cursor()
     cursor1.execute('select * from reddit2.users')
-
+    mysql.connection.commit()
+    
     for x in cursor1:
         print(x)
     return render_template("login.html")
