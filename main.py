@@ -13,7 +13,7 @@ mysql = MySQL(app)
 @app.route("/")
 def home():
     cursor = mysql.connection.cursor()
-    cursor.execute('''SHOW DATABASES''')
+    cursor.execute('SHOW DATABASES')
     for x in cursor:
         print(x)
     return render_template("login.html")
