@@ -1,3 +1,4 @@
+from typing import SupportsRound
 from flask import Flask, render_template, request
 from flask_mysqldb import MySQL
 
@@ -25,25 +26,29 @@ def home():
 @app.route("/signup.html")
 def signup():
     cursor = mysql.connection.cursor()
-    username = "azzz"
-    passwd = "bzzzz"
+    username = "user_name"
+    passwd = "blady"
     
-    #success = False
+    success = False
     
     try:
-        cursor.execute("INSERT INTO reddit2.users VALUES(%s, %s, %s)", (username, 0, passwd))
+        success = cursor.execute("INSERT INTO reddit2.users VALUES(%s, %s, %s)", (username, 0, passwd))
         mysql.connection.commit()
     except Exception as it_is_what_it_is:
         print("excepion caught")
         pass
-    #print("success is ", success)
     
-    cursor1 = mysql.connection.cursor()
-    cursor1.execute('select * from reddit2.users')
+    if success == 1: #Successfully inserted
+        print("Congratulations! Your account has been made")
+    else:
+        print("Error, the account already exists, please choose a different username")
+        
+    # cursor1 = mysql.connection.cursor()
+    # cursor1.execute('select * from reddit2.users')
     mysql.connection.commit()
     
-    for x in cursor1:
-        print(x)
+    # for x in cursor1:
+    #     print(x)
     
     
     return render_template("signup.html")
