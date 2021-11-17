@@ -25,8 +25,17 @@ def home():
 @app.route("/signup.html")
 def signup():
     cursor = mysql.connection.cursor()
-    abc = '123'
-    cursor.execute("INSERT INTO reddit2.users VALUES(%s, %s, %s)", (abc, 0, '23'))
+    username = "awaam"
+    passwd = "admin"
+    
+    
+    try:
+        cursor.execute('''INSERT INTO reddit2.users VALUES(%s, %s, %s)''', (username, passwd, 0))
+        mysql.connection.commit()
+    except Exception as e:
+        print("excepion caught")
+        pass
+    
     
     cursor1 = mysql.connection.cursor()
     cursor1.execute('select * from reddit2.users')
