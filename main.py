@@ -1,6 +1,7 @@
 from typing import SupportsRound
 from flask import Flask, render_template, request
 from flask_mysqldb import MySQL
+from werkzeug.utils import redirect
 
 app = Flask(__name__)
 
@@ -11,9 +12,6 @@ app.config['MYSQL_DB'] = 'reddit2'
 
 mysql = MySQL(app)
 
-<<<<<<< Updated upstream
-def create_subreddit_case(username = "saad", subreddit_name= "woosh", description = "woosh brotha"):
-=======
 def createSubreddit(inpname, inpdescription):
     cursor = mysql.connection.cursor()
     try:
@@ -23,20 +21,18 @@ def createSubreddit(inpname, inpdescription):
         print("Exception occured.")
         pass
 
-@app.route("/")
-def home():
->>>>>>> Stashed changes
+def LoginFunc(inpUsername, inpPassword):
     cursor = mysql.connection.cursor()
     
-    cursor.execute("Select username from reddit2.users where username=%s", (username,))
+    cursor.execute("Select username from reddit2.users where username=%s", (inpUsername,))
     if(cursor.fetchone() == None):
         print("User does not exist")
         return False
     
-    cursor.execute("SELECT name FROM reddit2.subreddits WHERE name=%s", (subreddit_name,))
-    if(cursor.fetchone() != None):
-        print("Subreddit already exists")
-        return False
+    # cursor.execute("SELECT name FROM reddit2.subreddits WHERE name=%s", (subreddit_name,))
+    # if(cursor.fetchone() != None):
+    #     print("Subreddit already exists")
+    #     return False
     
     #Insert into the subreddit table
     cursor.execute("INSERT INTO reddit2.subreddits VALUES(%s, %s)", (subreddit_name, description))
@@ -73,8 +69,7 @@ def leave_subreddit_case(username ="saad", subreddit_name = "woosh"):
     cursor.execute("DELETE FROM reddit2.joined WHERE username=%s AND name=%s", (username, subreddit_name))
     
     return True
-    
-   
+
 
 def signup_case(username="rrreeewewewe", passwd= "223313131"):
     cursor = mysql.connection.cursor()
@@ -94,22 +89,22 @@ def signup_case(username="rrreeewewewe", passwd= "223313131"):
         print("Error, the account already exists, please choose a different username")
         return False
         
-    
 #@app.route("/login.html")
-def login():
+def login(input_user, input_password):
     cursor = mysql.connection.cursor()
-    input_user = request.values.get('username', 'bruh')
-    input_password = request.values.get('password', 'bruh')
+    # input_user = request.values.get('username', 'bruh')
+    # input_password = request.values.get('password', 'bruh')
     cursor.execute('''SELECT username, password FROM reddit2.users WHERE username=%s AND password=%s''', (input_user, input_password))
     
     if cursor.rowcount == 0:
         print("Incorrect username or password")
+        return False
     else:
         return True
 
 @app.route("/")
 def home():
-    cursor = mysql.connection.cursor()
+    # cursor = mysql.connection.cursor()
     #cursor.execute('''INSERT INTO reddit2.users VALUES('saad', 1234, 0)''')
     # cursor1 = mysql.connection.cursor()
     # cursor1.execute('select * from reddit2.users')
@@ -117,19 +112,17 @@ def home():
     
     # for x in cursor1:
     #     print(x)
-    leave_subreddit_case()
+    if request.method == "POST":
+        username = request.form['username']
+		password = request.form['password'] 
+        if login(username, password):
+            return redirect("/signup.html")
     return render_template("login.html")
 
 @app.route("/signup.html")
 def signup(): 
     
     return render_template("signup.html")
-
-@app.route("/create-subreddit")
-def create_subreddit():
-    create_subreddit_case()
-    return render_template("signup.html")
-
 
 
 if __name__ == "__main__":
