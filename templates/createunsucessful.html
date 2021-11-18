@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/template.css')}}">    
+  </head>
+
+  <body>
+    <form method="POST">
+	    <h3 align="center">Create a Subreddit</h3>
+	     <div class="form-group">
+		    <label for="username">Subreddit Name: </label>
+		    <input
+		     type="text"
+		     class="form-control"
+		     id="createunsuccess"
+		     name="username"
+		     placeholder="Enter Subreddit Name: "
+		    />    
+	    </div>
+        <h4 align="center">Unsuccessful Creation</h4>
+</body>
+</html>
