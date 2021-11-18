@@ -20,81 +20,91 @@ mysql = MySQL(app)
 #Below, we have our member/helper functions
 
 def joinSubreddit(subreddit_name):
-    cursor = mysql.connection.cursor()
-    cursor.execute("SELECT username FROM reddit2.active_users")
-    curr_user = cursor.fetchone()[0]
-    inpUsername = curr_user
-    
-    #Check if the subreddit that the user wants to join exists or not
-    cursor.execute("SELECT name FROM reddit2.subreddits WHERE name=%s", (subreddit_name,))
-    if(cursor.rowcount == 0):
-        print("Subreddit does not exist")
-        return False
-    
-    #Check if the user is already a member of the subreddit
-    cursor.execute("SELECT roles FROM reddit2.joined WHERE username=%s AND subreddit=%s", (inpUsername, subreddit_name))
-    if(cursor.rowcount != 0):
-        print("You are already a member of this subreddit")    
-        return False
-    
     try:
-        cursor.execute("INSERT INTO reddit2.joined VALUES(%s, %s, %s)", (inpUsername, subreddit_name, "Member"))    
-        mysql.connection.commit()
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT username FROM reddit2.active_users")
+        curr_user = cursor.fetchone()[0]
+        inpUsername = curr_user
+        
+        #Check if the subreddit that the user wants to join exists or not
+        cursor.execute("SELECT name FROM reddit2.subreddits WHERE name=%s", (subreddit_name,))
+        if(cursor.rowcount == 0):
+            print("Subreddit does not exist")
+            return False
+        
+        #Check if the user is already a member of the subreddit
+        cursor.execute("SELECT roles FROM reddit2.joined WHERE username=%s AND subreddit=%s", (inpUsername, subreddit_name))
+        if(cursor.rowcount != 0):
+            print("You are already a member of this subreddit")    
+            return False
+        
+        try:
+            cursor.execute("INSERT INTO reddit2.joined VALUES(%s, %s, %s)", (inpUsername, subreddit_name, "Member"))    
+            mysql.connection.commit()
+        except Exception as rip:
+            return False
+            
+    
+        return True
     except Exception as rip:
         return False
-        
-    
-    return True
 
 def createSubreddit(subreddit_name, description):
-    cursor = mysql.connection.cursor()
-    cursor.execute("SELECT username FROM reddit2.active_users")
-    curr_user = cursor.fetchone()[0]
-    
-    inpUsername = curr_user
-    
-    cursor.execute("SELECT name FROM reddit2.subreddits WHERE name=%s", (subreddit_name,))
-    if(cursor.fetchone() != None):
-        print("Subreddit with this name already exists")
-        return False
-    
-    #Insert into the subreddit table
-    cursor.execute("INSERT INTO reddit2.subreddits VALUES(%s, %s)", (subreddit_name, description))
-    mysql.connection.commit()
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT username FROM reddit2.active_users")
+        curr_user = cursor.fetchone()[0]
+        
+        inpUsername = curr_user
+        
+        cursor.execute("SELECT name FROM reddit2.subreddits WHERE name=%s", (subreddit_name,))
+        if(cursor.fetchone() != None):
+            print("Subreddit with this name already exists")
+            return False
+        
+        #Insert into the subreddit table
+        cursor.execute("INSERT INTO reddit2.subreddits VALUES(%s, %s)", (subreddit_name, description))
+        mysql.connection.commit()
 
-    #Insertion into the Joined table, to show that the user has created the subreddit
-    cursor.execute("INSERT INTO reddit2.joined VALUES(%s, %s, %s)", (inpUsername, subreddit_name, "Subreddit Owner"))
-    mysql.connection.commit()
-    
-    return True    
+        #Insertion into the Joined table, to show that the user has created the subreddit
+        cursor.execute("INSERT INTO reddit2.joined VALUES(%s, %s, %s)", (inpUsername, subreddit_name, "Subreddit Owner"))
+        mysql.connection.commit()
+        
+        return True    
+    except Exception as a:
+        return False
     
 def leaveSubredditCase(subreddit_name):
-
-    cursor = mysql.connection.cursor()
-    cursor.execute("SELECT username FROM reddit2.active_users")
-    curr_user = cursor.fetchone()[0]
-    
-    username = curr_user
-    
-    cursor.execute("SELECT name FROM reddit2.subreddits WHERE name= %s", (subreddit_name,))
-    if(cursor.fetchone() == None):
-        print("Subreddit does not exist")
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT username FROM reddit2.active_users")
+        curr_user = cursor.fetchone()[0]
+        
+        username = curr_user
+        print("subreddit ka naam is ", subreddit_name)
+        
+        cursor.execute("SELECT name FROM reddit2.subreddits WHERE name= %s", (subreddit_name,))
+        if(cursor.fetchone() == None):
+            print("Subreddit does not exist")
+            return False
+        
+        #Check if the user is the owner of the subreddit
+        cursor.execute("SELECT roles FROM reddit2.joined WHERE username=%s AND subreddit=%s", (username, subreddit_name))
+        
+        if(cursor.rowcount == 0): #The user is not a member of the subreddit
+            #If thr user is not a member of the subreddit, they're made to join the subreddit
+            print("you're not a member of the subreddit :p")
+            return False
+        if(cursor.fetchone()[0] == "Subreddit Owner"):
+            print("You are the owner of this subreddit, you cannot leave :>")
+            return False
+        #Remove from the joined table
+        print("username is ", username, "and subreddit name is", subreddit_name)
+        cursor.execute("DELETE FROM reddit2.joined WHERE username=%s AND subreddit=%s", (username, subreddit_name))
+        mysql.connection.commit()
+        return True
+    except Exception as rip:
         return False
-    
-    #Check if the user is the owner of the subreddit
-    cursor.execute("SELECT roles FROM reddit2.joined WHERE username=%s AND subreddit=%s", (username, subreddit_name))
-    
-    if(cursor.rowcount == 0): #The user is not a member of the subreddit
-        #If thr user is not a member of the subreddit, they're made to join the subreddit
-        #return joinSubreddit(subreddit_name)
-        return False
-    if(cursor.fetchone()[0] == "Subreddit Owner"):
-        print("You are the owner of this subreddit, you cannot leave :>")
-        return False
-    #Remove from the joined table
-    cursor.execute("DELETE FROM reddit2.joined WHERE username=%s AND name=%s", (username, subreddit_name))
-    
-    return True
 
 def signup_case(username, passwd):
     cursor = mysql.connection.cursor()
@@ -116,20 +126,22 @@ def signup_case(username, passwd):
         return False
     
 def login(input_user, input_password):
-    cursor = mysql.connection.cursor()
-    
-    cursor.execute("SELECT username, password FROM reddit2.users WHERE username=%s AND password=%s", (input_user, input_password))
-    
-    if cursor.rowcount == 0:
-        print("Incorrect username or password")
-        return False
-    else:
+    try:
         cursor = mysql.connection.cursor()
-        cursor.execute("UPDATE reddit2.active_users SET username = %s WHERE username = %s", (input_user, "guest"))
-        mysql.connection.commit()
         
-        return True
-
+        cursor.execute("SELECT username, password FROM reddit2.users WHERE username=%s AND password=%s", (input_user, input_password))
+        
+        if cursor.rowcount == 0:
+            print("Incorrect username or password")
+            return False
+        else:
+            cursor = mysql.connection.cursor()
+            cursor.execute("UPDATE reddit2.active_users SET username = %s WHERE username = %s", (input_user, "guest"))
+            mysql.connection.commit()
+            
+            return True
+    except Exception as rip:
+        return False
 
 
 #Below, we have our routes
@@ -194,7 +206,8 @@ def leave():
         cursor.execute("SELECT username FROM reddit2.active_users")
         curr_user = cursor.fetchone()[0]
         if curr_user != "guest":
-            subreddit_name = request.form.get("subreddit_name")
+            subreddit_name = request.form.get("subreddit_name1")
+            print("lsajlkdj", subreddit_name)
             if leaveSubredditCase(subreddit_name):
                 return redirect("sucessful.html")
             else:
@@ -265,7 +278,6 @@ def signup():
             
     #return render_template("signup.html")
     return render_template("signup.html")
-
 
     
 if __name__ == "__main__":
