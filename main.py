@@ -6,12 +6,26 @@ app = Flask(__name__)
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '33e0a108'
+app.config['MYSQL_PASSWORD'] = 'SaadAkbar'
 app.config['MYSQL_DB'] = 'reddit2'
 
 mysql = MySQL(app)
 
+<<<<<<< Updated upstream
 def create_subreddit_case(username = "saad", subreddit_name= "woosh", description = "woosh brotha"):
+=======
+def createSubreddit(inpname, inpdescription):
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute("INSERT INTO reddit2.users VALUES(%s, %s, %s)", (inpname, 0, inpdescription))
+        mysql.connection.commit()
+    except Exception as lol_ho_gaya:
+        print("Exception occured.")
+        pass
+
+@app.route("/")
+def home():
+>>>>>>> Stashed changes
     cursor = mysql.connection.cursor()
     
     cursor.execute("Select username from reddit2.users where username=%s", (username,))
