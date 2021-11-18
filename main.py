@@ -103,7 +103,7 @@ def login(input_user, input_password):
         return True
 
 
-@app.route("/")
+@app.route("/", methods = ["POST", "GET"])
 def home():
     if request.method == 'POST':
         username = request.form.get('username')
