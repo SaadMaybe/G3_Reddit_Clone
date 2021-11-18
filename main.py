@@ -134,27 +134,39 @@ def login(input_user, input_password):
 
 #Below, we have our routes
 
+@app.route("/unsucessful.html", methods=['GET', 'POST'])
+def unsuc():
+    return render_template("unsucessful.html")
+
+
+@app.route("/sucessful.html", methods=['GET', 'POST'])
+def suc():
+    return render_template("sucessful.html")
 
 
 #These routes are for creating, joining, and leaving a subreddit
 @app.route("/create-reddit.html", methods=["GET", "POST"])
 def create():
-    if request.method == "POST":
+    
+    if request.method == "GET":
         cursor = mysql.connection.cursor()
         cursor.execute("SELECT username FROM reddit2.active_users")
         curr_user = cursor.fetchone()[0]
         
         if curr_user != "guest":
-            subreddit_name = request.form.get("subreddit_name")
-            description = request.form.get("description")
+            subreddit_name = request.form.get("subreddit_name1")
+            description = request.form.get("description1")
+            #print("ae ki gal ae", subreddit_name)
             if(createSubreddit(subreddit_name, description)):
-                return redirect("successful.html")
+                return redirect("sucessful.html")
             else:
                 return redirect("unsucessful.html")
         else:
             print("You must be logged in to create a subreddit")
             return redirect("login.html")
     return render_template("create-reddit.html")
+
+
 
 @app.route("/join-reddit.html", methods=["GET", "POST"])
 def join():
@@ -165,9 +177,9 @@ def join():
         if curr_user != "guest":
             subreddit_name = request.form.get("subreddit_name")
             if joinSubreddit(subreddit_name):
-                return redirect("successful.html")
+                return redirect("sucessful.html")
             else:
-                return redirect("unsuccessful.html")
+                return redirect("unsucessful.html")
         else:
             print("You must be logged in to join a subreddit")
             return redirect("login.html")
@@ -182,9 +194,9 @@ def leave():
         if curr_user != "guest":
             subreddit_name = request.form.get("subreddit_name")
             if leaveSubredditCase(subreddit_name):
-                return redirect("successful.html")
+                return redirect("sucessful.html")
             else:
-                return redirect("unsuccessful.html")
+                return redirect("unsucessful.html")
         else:
             print("You must be logged in to leave a subreddit")
             return redirect("login.html")
@@ -217,7 +229,6 @@ def home():
     except:
         pass
 
-
     
     
     if request.method == 'POST':        
@@ -228,7 +239,7 @@ def home():
             return redirect(url_for('dash'))
         else:
             print(False)
-            return redirect("loginunsuccessful.html")
+            return redirect("sucessful.html")
         
     return render_template("login.html")
 
@@ -245,7 +256,7 @@ def signup():
             if(val):
                 return redirect(url_for('home'))
             else:
-                return redirect("/signupunsuccessful.html")
+                return redirect("/unsucessful.html")
         else:
             print("You are already logged in!")
             return redirect("/dashboard.html")
