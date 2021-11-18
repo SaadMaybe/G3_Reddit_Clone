@@ -109,8 +109,7 @@ def leaveSubredditCase(subreddit_name):
 def signup_case(username, passwd):
     cursor = mysql.connection.cursor()
     success = 0
-    
-    
+
     try:
         success = cursor.execute("INSERT INTO reddit2.users VALUES(%s, %s, %s)", (username, 0, passwd))
         mysql.connection.commit()
@@ -168,7 +167,7 @@ def create():
         if curr_user != "guest":
             subreddit_name = request.form.get("subreddit_name1")
             description = request.form.get("description1")
-            #print("ae ki gal ae", subreddit_name)
+
             if(createSubreddit(subreddit_name, description)):
                 return redirect("sucessful.html")
             else:
@@ -189,7 +188,6 @@ def join():
         
         if curr_user != "guest":
             subreddit_name = request.form.get("subreddit_name1")
-           # print("lsakdjsalkjalkd", subreddit_name)
             if joinSubreddit(subreddit_name):
                 return redirect("sucessful.html")
             else:
@@ -207,7 +205,6 @@ def leave():
         curr_user = cursor.fetchone()[0]
         if curr_user != "guest":
             subreddit_name = request.form.get("subreddit_name1")
-            print("lsajlkdj", subreddit_name)
             if leaveSubredditCase(subreddit_name):
                 return redirect("sucessful.html")
             else:
@@ -225,6 +222,7 @@ def dash():
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT username FROM reddit2.active_users")
     curr_user = cursor.fetchone()[0]
+    
     if curr_user != "guest":
         return render_template("dashboard.html")
     else:
@@ -276,7 +274,6 @@ def signup():
             print("You are already logged in!")
             return redirect("/dashboard.html")
             
-    #return render_template("signup.html")
     return render_template("signup.html")
 
 @app.route("/logout.html")
