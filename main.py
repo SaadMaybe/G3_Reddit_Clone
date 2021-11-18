@@ -89,7 +89,7 @@ def signup_case(username="rrreeewewewe", passwd= "223313131"):
         print("Error, the account already exists, please choose a different username")
         return False
         
-#@app.route("/login.html")
+#@app.route("/login.html")dsad
 def login(input_user, input_password):
     cursor = mysql.connection.cursor()
     # input_user = request.values.get('username', 'bruh')
