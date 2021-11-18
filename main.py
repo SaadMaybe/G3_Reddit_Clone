@@ -102,22 +102,21 @@ def login(input_user, input_password):
     else:
         return True
 
+
 @app.route("/")
 def home():
-    # cursor = mysql.connection.cursor()
-    #cursor.execute('''INSERT INTO reddit2.users VALUES('saad', 1234, 0)''')
-    # cursor1 = mysql.connection.cursor()
-    # cursor1.execute('select * from reddit2.users')
-    # mysql.connection.commit()
-    
-    # for x in cursor1:
-    #     print(x)
-    if request.method == "POST":
-        username = request.form['username']
-		password = request.form['password'] 
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
         if login(username, password):
-            return redirect("/signup.html")
+            print(True)
+        else:
+            print(False)
+
     return render_template("login.html")
+
+
 
 @app.route("/signup.html")
 def signup(): 
