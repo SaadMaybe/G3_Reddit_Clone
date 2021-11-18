@@ -133,6 +133,7 @@ def home():
 
         if login(username, password):
             curr_user = username
+            
             print(True)
         else:
             print(False)
