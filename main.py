@@ -148,7 +148,7 @@ def suc():
 @app.route("/create-reddit.html", methods=["GET", "POST"])
 def create():
     
-    if request.method == "GET":
+    if request.method == "POST":
         cursor = mysql.connection.cursor()
         cursor.execute("SELECT username FROM reddit2.active_users")
         curr_user = cursor.fetchone()[0]
@@ -174,8 +174,10 @@ def join():
         cursor = mysql.connection.cursor()
         cursor.execute("SELECT username FROM reddit2.active_users")
         curr_user = cursor.fetchone()[0]
+        
         if curr_user != "guest":
-            subreddit_name = request.form.get("subreddit_name")
+            subreddit_name = request.form.get("subreddit_name1")
+           # print("lsakdjsalkjalkd", subreddit_name)
             if joinSubreddit(subreddit_name):
                 return redirect("sucessful.html")
             else:
