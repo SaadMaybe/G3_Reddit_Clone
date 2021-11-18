@@ -279,7 +279,22 @@ def signup():
     #return render_template("signup.html")
     return render_template("signup.html")
 
+@app.route("/logout.html")
+def logout():
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute("DELETE FROM active_users",)
+        mysql.connection.commit()
+        cursor.execute("INSERT INTO active_users VALUES (%s)", ("guest",))
+        mysql.connection.commit()    
+    except:
+        pass
+    return redirect(url_for('home'))
     
+@app.route("/login.html")
+def loginA():
+    return redirect(url_for('home'))
+
 if __name__ == "__main__":
     app.run(debug=True)
     
