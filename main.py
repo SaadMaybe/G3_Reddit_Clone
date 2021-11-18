@@ -209,12 +209,15 @@ def dash():
 def home(): 
     
     cursor = mysql.connection.cursor()
+    cursor.execute("DELETE FROM active_users",)
+    mysql.connection.commit()
     try:
         cursor.execute("INSERT INTO active_users VALUES (%s)", ("guest",))
         mysql.connection.commit()
     except:
-        cursor.execute("DELETE FROM active_users WHERE username = %s", ("guest",))
-        cursor.execute("INSERT INTO active_users VALUES(%s)" , ("guest",))
+        pass
+
+
     
     
     if request.method == 'POST':        
