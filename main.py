@@ -326,14 +326,27 @@ def signup():
 def logout():
     cursor = mysql.connection.cursor()
     try:
-        cursor.execute("DELETE FROM active_users",)
+        cursor.execute("DELETE FROM reddit2.active_users",)
         mysql.connection.commit()
-        cursor.execute("INSERT INTO active_users VALUES (%s)", ("guest",))
+        cursor.execute("INSERT INTO reddit2.active_users VALUES (%s)", ("guest",))
         mysql.connection.commit()    
     except:
         pass
     return redirect(url_for('home'))
-    
+
+@app.route("/displaySubreddit", defaults={'subreddit_name' : 'all'})
+@app.route("/")
+def displaySubreddit(subreddit_name):
+    if viewSubreddit(subreddit_name):
+        cursor = mysql.connection.cursor()
+        try:
+            posts = cursor.execute("SELECT * FROM reddit2.posts WHERE postid IN (SELECT postid FROM reddit2.posted_in WHERE subreddit = %s))" , subreddit_name)
+            return render_template("displaySubreddit.html", posts=posts)
+        except:
+            return redirect(url_for('home'))
+    else:
+        return redirect(url_for('home'))  
+
 @app.route("/login.html")
 def loginA():
     return redirect(url_for('home'))
