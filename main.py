@@ -5,6 +5,7 @@ curr_user = "guest" #Stores the username of the current username
 #You wouldn't get this from any other guy
 from logging import currentframe
 from typing import SupportsRound
+from MySQLdb import cursors
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_mysqldb import MySQL
 from werkzeug.utils import redirect
@@ -158,10 +159,167 @@ def viewSubreddit(subreddit_name):
         return False
 
 
+#Here, we implement the upvote/downvote features
 
+def upvote(postid):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT username FROM reddit2.active_users")
+        curr_user = cursor.fetchone()[0]
+        if curr_user == "guest":
+            print("You must be logged in to upvote")
+            return render_template(url_for('home'))
+        else:
+            #Incrases the number of upvotes of the post
+            cursor.execute("SELECT upvotes from reddit2.posts WHERE postid=%s", (postid,))
+            upV = cursor.fetchone()[0]
+            upV += 1
+            cursor.execute("UPDATE reddit2.posts SET upvotes=%s WHERE postid=%s", (upV, postid))
+            mysql.connection.commit()
+            
+            #Increases the karma of the user who posted the post
+            cursor.execute("SELECT karma from reddit2.users WHERE username=%s", (curr_user,))
+            k = cursor.fetchone()[0]
+            k += 1
+            cursor.execute("UPDATE reddit2.users SET karma=%s WHERE username=%s", (k, curr_user))
+            mysql.connection.commit()
+            
+            return True
+    except Exception as rip:
+        return False 
+    
+def downvote(postid):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT username FROM reddit2.active_users")
+        curr_user = cursor.fetchone()[0]
+        if curr_user == "guest":
+            print("You must be logged in to upvote")
+            return render_template(url_for('home'))
+        else:
+            #Increases the number of downvote of the post
+            cursor.execute("SELECT downvotes from reddit2.posts WHERE postid=%s", (postid,))
+            downV = cursor.fetchone()[0]
+            downV += 1
+            cursor.execute("UPDATE reddit2.posts SET downvotes=%s WHERE postid=%s", (downV, postid))
+            mysql.connection.commit()
+            
+            #Decreases the karma of the user who posted the post
+            cursor.execute("SELECT karma from reddit2.users WHERE username=%s", (curr_user,))
+            k = cursor.fetchone()[0]
+            k -= 1
+            cursor.execute("UPDATE reddit2.users SET karma=%s WHERE username=%s", (k, curr_user))
+            mysql.connection.commit()
+            
+            return True
+    except Exception as rip:
+        return False
+    
+def cancel_upvote(postid):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT username FROM reddit2.active_users")
+        curr_user = cursor.fetchone()[0]
+        if curr_user == "guest":
+            print("You must be logged in to upvote")
+            return render_template(url_for('home'))
+        else:
+            #Decreases the number of upvotes of the post
+            cursor.execute("SELECT upvotes from reddit2.posts WHERE postid=%s", (postid,))
+            upV = cursor.fetchone()[0]
+            upV = 1
+            cursor.execute("UPDATE reddit2.posts SET upvotes=%s WHERE postid=%s", (upV, postid))
+            mysql.connection.commit()
+            
+            #Increases the karma of the user who posted the post
+            cursor.execute("SELECT karma from reddit2.users WHERE username=%s", (curr_user,))
+            k = cursor.fetchone()[0]
+            k -= 1
+            cursor.execute("UPDATE reddit2.users SET karma=%s WHERE username=%s", (k, curr_user))
+            mysql.connection.commit()
+            
+            return False
+    except Exception as rip:
+        return render_template(url_for('home'))    
+    
+def downvote(postid):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT username FROM reddit2.active_users")
+        curr_user = cursor.fetchone()[0]
+        if curr_user == "guest":
+            print("You must be logged in to upvote")
+            return render_template(url_for('home'))
+        else:
+            #Increases the number of downvote of the post
+            cursor.execute("SELECT downvotes from reddit2.posts WHERE postid=%s", (postid,))
+            downV = cursor.fetchone()[0]
+            downV -= 1
+            cursor.execute("UPDATE reddit2.posts SET downvotes=%s WHERE postid=%s", (downV, postid))
+            mysql.connection.commit()
+            
+            #Decreases the karma of the user who posted the post
+            cursor.execute("SELECT karma from reddit2.users WHERE username=%s", (curr_user,))
+            k = cursor.fetchone()[0]
+            k += 1
+            cursor.execute("UPDATE reddit2.users SET karma=%s WHERE username=%s", (k, curr_user))
+            mysql.connection.commit()
+            
+            return True
+    except Exception as rip:
+        return False
+    
 #Below, we have our routes
 
-@app.route('/request')
+#@app.route('/request/<string:username>/<string: subreddit>')
+def request_promote(username, subreddit):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT username FROM reddit2.active_users")
+        curr_user = cursor.fetchone()[0]
+    
+        if curr_user == "guest":
+            print("You are not logged in")
+            return render_template(url_for('home'))
+        else:
+            
+            cursor.execute("SELECT requester, subreddit FROM reddit2.requests WHERE requester=%s AND subreddit=%s", (username, subreddit))
+            if cursor.rowcount == 0: 
+                cursor.execute("INSERT INTO reddit2.requests VALUES (%s, %s)", (username, subreddit))
+                mysql.connection.commit()
+            else:
+                print("You have already requested to promote this subreddit")
+                return render_template(url_for('dash'))
+            
+    except Exception as hmm:
+        return render_template(url_for('home'))
+    
+    
+#@app.route('/promote-accept/<string:username>/<string:subreddit>')
+def promote_accept(username, subreddit):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("DELETE FROM reddit.requests WHERE requester=%s AND subreddit=%s", (username, subreddit))
+        mysql.connection.commit()
+        
+        cursor.execute("UPDATE reddit2.joined SET roles=%s WHERE username=%s AND subreddit=%s", ("Moderator", username, subreddit))
+        mysql.connection.commit()
+        
+        return render_template(url_for('dash'))
+    except Exception as hmm:
+        return render_template(url_for('dash'))
+
+#@app.route('/promote-decline/user')
+def promote_decline(username, subreddit):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("DELETE FROM reddit.requests WHERE requester=%s AND subreddit=%s", (username, subreddit))
+        mysql.connection.commit()
+    
+        return render_template(url_for('dash'))
+    except Exception as lol_rejected:
+        return render_template(url_for('dash'))
+    
 
 @app.route("/user.html")
 def user_profile():

@@ -7,13 +7,13 @@ leave a subreddit
 
 tasks2:
 (implement Roles in each joined tables)
-request to promote to moderator
-reply to promote to moderator
-view user profile
+request to promote to moderator -
+reply to promote to moderator -
+view user profile -
 post in subreddit
-upvote a post
+upvote a post 
 cancel an upvote
 downvote a post
 cancel downvote
-view a subreddit
-view as guest
+view a subreddit -
+view as guest 
