@@ -161,33 +161,109 @@ def viewSubreddit(subreddit_name):
 
 #Here, we implement the upvote/downvote features
 
-# def upvote(postid):
-#     try:
-#         cursor = mysql.connection.cursor()
-#         cursor.execute("SELECT username FROM reddit2.active_users")
-#         curr_user = cursor.fetchone()[0]
-#         if curr_user == "guest":
-#             print("You must be logged in to upvote")
-#             return render_template(url_for('home'))
-#         else:
-#             #Incrases the number of upvotes of the post
-#             cursor.execute("SELECT upvotes from reddit2.posts WHERE postid=%s", (postid,))
-#             upV = cursor.fetchone()[0]
-#             upV += 1
-#             cursor.execute("UPDATE reddit2.posts SET upvotes=%s WHERE postid=%s", (upV, postid))
-#             mysql.connection.commit()
+def upvote(postid, upvoter):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT username FROM reddit2.active_users")
+        curr_user = cursor.fetchone()[0]
+        if curr_user == "guest":
+            print("You must be logged in to upvote")
+            return render_template(url_for('home'))
+        else:
             
-#             #Increases the karma of the user who posted the post
-#             cursor.execute("SELECT karma from reddit2.users WHERE username=%s", (curr_user,))
-#             k = cursor.fetchone()[0]
-#             k += 1
-#             cursor.execute("UPDATE reddit2.users SET karma=%s WHERE username=%s", (k, curr_user))
-#             mysql.connection.commit()
+            cursor.execute("SELECT upvote FROM reddit2.post_votes WHERE postid=%s AND username=%s", (postid, upvoter))
+            if cursor.rowcount == 0:  #the user hasn't upvoted the post yet
+                cursor.execute("INSERT INTO reddit2.post_votes VALUES(%s, %s, %s)", (postid, upvoter, 1))
+                mysql.connection.commit()
+                
+                #Increases the number of upvotes of the post
+                cursor.execute("SELECT upvotes from reddit2.posts WHERE postid=%s", (postid,))
+                upV = cursor.fetchone()[0]
+                upV += 1
+                cursor.execute("UPDATE reddit2.posts SET upvotes=%s WHERE postid=%s", (upV, postid))
+                mysql.connection.commit()
+                
+                #Increases the karma of the user who posted the post
+                cursor.execute("SELECT karma from reddit2.users WHERE username=%s", (curr_user,))
+                k = cursor.fetchone()[0]
+                k += 1
+                cursor.execute("UPDATE reddit2.users SET karma=%s WHERE username=%s", (k, curr_user))
+                mysql.connection.commit()
+                
+            else: #We must cancel the upvote for that post/person
+                cursor.execute("DELETE FROM reddit2.post_votes WHERE username=%s AND postid=%s", (upvoter, postid))
+
+                #Decreases the number of upvotes of the post
+                cursor.execute("SELECT upvotes from reddit2.posts WHERE postid=%s", (postid,))
+                upV = cursor.fetchone()[0]
+                upV -= 1
+                cursor.execute("UPDATE reddit2.posts SET upvotes=%s WHERE postid=%s", (upV, postid))
+                mysql.connection.commit()
+                
+                
+                #Decreases the karma of the user who posted the post
+                cursor.execute("SELECT karma from reddit2.users WHERE username=%s", (curr_user,))
+                k = cursor.fetchone()[0]
+                k -= 1
+                cursor.execute("UPDATE reddit2.users SET karma=%s WHERE username=%s", (k, curr_user))
+                mysql.connection.commit()      
             
-#             return True
-#     except Exception as rip:
-#         return False 
+            return True
+    except Exception as rip:
+        return False 
     
+    
+def downvote(postid, downvoter):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT username FROM reddit2.active_users")
+        curr_user = cursor.fetchone()[0]
+        if curr_user == "guest":
+            print("You must be logged in to upvote")
+            return render_template(url_for('home'))
+        else:
+            
+            cursor.execute("SELECT upvote FROM reddit2.post_votes WHERE postid=%s AND username=%s", (postid, downvoter))
+            if cursor.rowcount == 0:  #the user hasn't downvoted the post yet
+                cursor.execute("INSERT INTO reddit2.post_votes VALUES(%s, %s, %s)", (postid, downvoter, -1))
+                mysql.connection.commit()
+                
+                #Increases the number of downvotes of the post
+                cursor.execute("SELECT downvotes from reddit2.posts WHERE postid=%s", (postid,))
+                downV = cursor.fetchone()[0]
+                downV += 1
+                cursor.execute("UPDATE reddit2.posts SET downvotes=%s WHERE postid=%s", (downV, postid))
+                mysql.connection.commit()
+                
+                #Decreases the karma of the user who posted the post
+                cursor.execute("SELECT karma from reddit2.users WHERE username=%s", (curr_user,))
+                k = cursor.fetchone()[0]
+                k -= 1
+                cursor.execute("UPDATE reddit2.users SET karma=%s WHERE username=%s", (k, curr_user))
+                mysql.connection.commit()
+                
+            else: #We must cancel the downvote for that post/person
+                cursor.execute("DELETE FROM reddit2.post_votes WHERE username=%s AND postid=%s", (downvoter, postid))
+
+                #Decreases the number of downvotes of the post
+                cursor.execute("SELECT downvotes from reddit2.posts WHERE postid=%s", (postid,))
+                downV = cursor.fetchone()[0]
+                downV -= 1
+                cursor.execute("UPDATE reddit2.posts SET downvotes=%s WHERE postid=%s", (downV, postid))
+                mysql.connection.commit()
+                
+                
+                #Decreases the karma of the user who posted the post
+                cursor.execute("SELECT karma from reddit2.users WHERE username=%s", (curr_user,))
+                k = cursor.fetchone()[0]
+                k += 1
+                cursor.execute("UPDATE reddit2.users SET karma=%s WHERE username=%s", (k, curr_user))
+                mysql.connection.commit()      
+            
+            return True
+    except Exception as rip:
+        return False     
+
     
 #Below, we have our routes
 
