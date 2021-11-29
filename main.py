@@ -161,6 +161,8 @@ def viewSubreddit(subreddit_name):
 
 #Below, we have our routes
 
+@app.route('/request')
+
 @app.route("/user.html")
 def user_profile():
     cursor = mysql.connection.cursor()
@@ -185,12 +187,7 @@ def user_profile():
         return render_template("user.html", username=username, karma=karma, subreddits=subreddits)
         
     else: #Someone else is looking at a person's profile, which isn't allowed
-        return render_template("home.html")
-        
-        
-        
-    
-        
+        return render_template("home.html")        
 
 @app.route("/unsucessful.html", methods=['GET', 'POST'])
 def unsuc():
@@ -270,7 +267,13 @@ def dash():
     curr_user = cursor.fetchone()[0]
     
     if curr_user != "guest":
-        return render_template("dashboard.html")
+        cursor.execute("SELECT requester, subreddit FROM reddit2.requests WHERE subreddit IN (SELECT subreddit FROM reddit2.joined WHERE username=%s AND (roles=%s OR roles=%s))", (curr_user, "moderator", "Subreddit Owner"))
+        if cursor.rowcount==0:
+            requests = []
+        else:
+            requests = cursor.fetchall() 
+        return render_template("dashboard.html", requests=requests)
+            
     else:
         print("You must be logged in to view the dashboard")
         return redirect("login.html")
