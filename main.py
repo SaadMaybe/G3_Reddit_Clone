@@ -14,7 +14,7 @@ app = Flask(__name__)
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '33e0a108'
+app.config['MYSQL_PASSWORD'] = '<]^7f[R2<n'
 app.config['MYSQL_DB'] = 'reddit2'
 
 mysql = MySQL(app)
@@ -144,6 +144,18 @@ def login(input_user, input_password):
     except Exception as rip:
         return False
 
+def viewSubreddit(subreddit_name):
+    try:
+        cursor = mysql.connection.cursor()
+
+        cursor.execute("SELECT name FROM reddit2.subreddits WHERE name = %s", (subreddit_name))
+
+        if cursor.rowcount == 0:
+            return False
+        else:
+            return True
+    except Exception as ded:
+        return False
 
 #Below, we have our routes
 
@@ -293,7 +305,7 @@ def logout():
 @app.route("/login.html")
 def loginA():
     return redirect(url_for('home'))
-
+    
 if __name__ == "__main__":
     app.run(debug=True)
     
