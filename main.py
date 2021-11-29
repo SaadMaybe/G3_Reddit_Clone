@@ -14,7 +14,7 @@ app = Flask(__name__)
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '<]^7f[R2<n'
+app.config['MYSQL_PASSWORD'] = '33e0a108'
 app.config['MYSQL_DB'] = 'reddit2'
 
 mysql = MySQL(app)
@@ -157,7 +157,40 @@ def viewSubreddit(subreddit_name):
     except Exception as ded:
         return False
 
+
+
 #Below, we have our routes
+
+@app.route("/user.html")
+def user_profile():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT username FROM reddit2.active_users")
+    
+    curr_user = cursor.fetchone()[0]
+    if curr_user != "guest": #Meaning that the person is looking at their own profile
+        cursor.execute("SELECT username, karma FROM reddit2.users WHERE username=%s", (curr_user,))
+        if cursor.rowcount == 0:
+            return render_template("home.html")
+        
+        user_details = cursor.fetchone()
+        username = user_details[0]
+        karma = user_details[1]
+        cursor.execute("SELECT subreddit FROM reddit2.joined WHERE username=%s", (curr_user,))
+        if cursor.rowcount != 0:
+            subreddits = cursor.fetchall()
+        else:
+            subreddits = []
+            
+        
+        return render_template("user.html", username=username, karma=karma, subreddits=subreddits)
+        
+    else: #Someone else is looking at a person's profile, which isn't allowed
+        return render_template("home.html")
+        
+        
+        
+    
+        
 
 @app.route("/unsucessful.html", methods=['GET', 'POST'])
 def unsuc():
@@ -190,7 +223,6 @@ def create():
             print("You must be logged in to create a subreddit")
             return redirect("login.html")
     return render_template("create-reddit.html")
-
 
 
 @app.route("/join-reddit.html", methods=["GET", "POST"])
