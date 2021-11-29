@@ -62,14 +62,14 @@
                 <li class="nav-item">
                   <a
                     class="nav-link btn btn-outline-primary text-primary m-1"
-                    href="{{ url_for('signup.html') }}"
+                    href="{{ url_for('signup') }}"
                     >Signup</a
                   >
                 </li>
                 <li class="nav-item">
                   <a
                     class="nav-link btn btn-outline-primary text-primary m-1"
-                    href="{{ url_for('login.html') }}"
+                    href="{{ url_for('loginA') }}"
                     >Login</a
                   >
                 </li>
@@ -142,11 +142,11 @@
             <h6 class="card-subtitle text-muted mb-3">
               <small
                 >Posted on {{ post.date_created.strftime("%m/%d/%Y") }} by
-                <a
+                <!-- <a
                   class="text-muted"
                   href="{{ url_for('user.app_user', username=post.username) }}"
                   >u/{{ post.username }}</a
-                >
+                > -->
               </small>
             </h6>
             <p class="card-text">
