@@ -1,7 +1,8 @@
 curr_user = "guest" #Stores the username of the current username
 
 #You know the rules, and so do I
-
+#A full commitment's what I'm thinking of
+#You wouldn't get this from any other guy
 from logging import currentframe
 from typing import SupportsRound
 from flask import Flask, render_template, request, redirect, url_for, session, flash
