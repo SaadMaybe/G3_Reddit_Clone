@@ -158,6 +158,16 @@ def viewSubreddit(subreddit_name):
     except Exception as ded:
         return False
 
+@app.route('/post/', defaults = 'all')
+@app.route('/post/<postid>')
+def viewPost(postid):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM reddit2.posts WHERE  = %s", (postid,))
+    
+    return render_template('post.html', post = cursor.fetchone()[0])
+    
+    
+    
 
 #Here, we implement the upvote/downvote features
 
@@ -211,8 +221,7 @@ def upvote(postid, upvoter):
             return True
     except Exception as rip:
         return False 
-    
-    
+       
 def downvote(postid, downvoter):
     try:
         cursor = mysql.connection.cursor()
@@ -263,7 +272,6 @@ def downvote(postid, downvoter):
             return True
     except Exception as rip:
         return False     
-
     
 #Below, we have our routes
 
@@ -491,8 +499,8 @@ def logout():
         pass
     return redirect(url_for('home'))
 
-@app.route("/displaySubreddit", defaults={'subreddit_name' : 'all'})
-@app.route("/")
+@app.route("/displaySubreddit/", defaults={'subreddit_name' : 'all'})
+@app.route("/displaySubreddit/<name>")
 def displaySubreddit(subreddit_name):
     if viewSubreddit(subreddit_name):
         cursor = mysql.connection.cursor()
