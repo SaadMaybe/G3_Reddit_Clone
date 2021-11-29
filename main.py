@@ -1,5 +1,6 @@
 curr_user = "guest" #Stores the username of the current username
 
+#You know the rules, and so do I
 
 from logging import currentframe
 from typing import SupportsRound
