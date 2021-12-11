@@ -1,21 +1,24 @@
 curr_user = "guest" #Stores the username of the current username
 
-
+#You know the rules, and so do I
+#A full commitment's what I'm thinking of
+#You wouldn't get this from any other guy
 from logging import currentframe
 from typing import SupportsRound
+from MySQLdb import cursors
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_mysqldb import MySQL
+
 app = Flask(__name__)
-#heh, pain
-app.config['MYSQL_HOST'] = 'localhost' 
+
+app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '33e0a108'
+app.config['MYSQL_PASSWORD'] = 'SaadAkbar'
 app.config['MYSQL_DB'] = 'reddit2'
 
 app.secret_key = 'secret123'
 mysql = MySQL(app)
 
-<<<<<<< Updated upstream
 #Below, we have our member/helper functions
 
 def joinSubreddit(subreddit_name):
@@ -141,8 +144,6 @@ def login(input_user, input_password):
     except Exception as rip:
         return False
 
-<<<<<<< Updated upstream
-=======
 def viewSubreddit(subreddit_name):
     try:
         cursor = mysql.connection.cursor()
@@ -155,7 +156,6 @@ def viewSubreddit(subreddit_name):
             return True
     except Exception as ded:
         return False
-    
 
 # @app.route('/post/', defaults = 'all')
 # @app.route('/post/<postid>')
@@ -167,11 +167,113 @@ def viewSubreddit(subreddit_name):
     
     
     
->>>>>>> Stashed changes
 
-#Below, we have our routes
+#Here, we implement the upvote/downvote features
 
-=======
+def upvote(postid, upvoter):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT username FROM reddit2.active_users")
+        curr_user = cursor.fetchone()[0]
+        if curr_user == "guest":
+            print("You must be logged in to upvote")
+            
+            #print an alert message (front end)
+            #return render_template(url_for('home'))
+        else:
+            
+            cursor.execute("SELECT upvote FROM reddit2.post_votes WHERE postid=%s AND username=%s", (postid, upvoter))
+            if cursor.rowcount == 0:  #the user hasn't upvoted the post yet
+                cursor.execute("INSERT INTO reddit2.post_votes VALUES(%s, %s, %s)", (postid, upvoter, 1))
+                mysql.connection.commit()
+                
+                #Increases the number of upvotes of the post
+                cursor.execute("SELECT upvotes from reddit2.posts WHERE postid=%s", (postid,))
+                upV = cursor.fetchone()[0]
+                upV += 1
+                cursor.execute("UPDATE reddit2.posts SET upvotes=%s WHERE postid=%s", (upV, postid))
+                mysql.connection.commit()
+                
+                #Increases the karma of the user who posted the post
+                cursor.execute("SELECT karma from reddit2.users WHERE username=%s", (curr_user,))
+                k = cursor.fetchone()[0]
+                k += 1
+                cursor.execute("UPDATE reddit2.users SET karma=%s WHERE username=%s", (k, curr_user))
+                mysql.connection.commit()
+                
+            else: #We must cancel the upvote for that post/person
+                cursor.execute("DELETE FROM reddit2.post_votes WHERE username=%s AND postid=%s", (upvoter, postid))
+
+                #Decreases the number of upvotes of the post
+                cursor.execute("SELECT upvotes from reddit2.posts WHERE postid=%s", (postid,))
+                upV = cursor.fetchone()[0]
+                upV -= 1
+                cursor.execute("UPDATE reddit2.posts SET upvotes=%s WHERE postid=%s", (upV, postid))
+                mysql.connection.commit()
+                
+                
+                #Decreases the karma of the user who posted the post
+                cursor.execute("SELECT karma from reddit2.users WHERE username=%s", (curr_user,))
+                k = cursor.fetchone()[0]
+                k -= 1
+                cursor.execute("UPDATE reddit2.users SET karma=%s WHERE username=%s", (k, curr_user))
+                mysql.connection.commit()      
+            
+            return True
+    except Exception as rip:
+        return False 
+       
+def downvote(postid, downvoter):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT username FROM reddit2.active_users")
+        curr_user = cursor.fetchone()[0]
+        if curr_user == "guest":
+            print("You must be logged in to upvote")
+            return render_template(url_for('home'))
+        else:
+            
+            cursor.execute("SELECT upvote FROM reddit2.post_votes WHERE postid=%s AND username=%s", (postid, downvoter))
+            if cursor.rowcount == 0:  #the user hasn't downvoted the post yet
+                cursor.execute("INSERT INTO reddit2.post_votes VALUES(%s, %s, %s)", (postid, downvoter, -1))
+                mysql.connection.commit()
+                
+                #Increases the number of downvotes of the post
+                cursor.execute("SELECT downvotes from reddit2.posts WHERE postid=%s", (postid,))
+                downV = cursor.fetchone()[0]
+                downV += 1
+                cursor.execute("UPDATE reddit2.posts SET downvotes=%s WHERE postid=%s", (downV, postid))
+                mysql.connection.commit()
+                
+                #Decreases the karma of the user who posted the post
+                cursor.execute("SELECT karma from reddit2.users WHERE username=%s", (curr_user,))
+                k = cursor.fetchone()[0]
+                k -= 1
+                cursor.execute("UPDATE reddit2.users SET karma=%s WHERE username=%s", (k, curr_user))
+                mysql.connection.commit()
+                
+            else: #We must cancel the downvote for that post/person
+                cursor.execute("DELETE FROM reddit2.post_votes WHERE username=%s AND postid=%s", (downvoter, postid))
+
+                #Decreases the number of downvotes of the post
+                cursor.execute("SELECT downvotes from reddit2.posts WHERE postid=%s", (postid,))
+                downV = cursor.fetchone()[0]
+                downV -= 1
+                cursor.execute("UPDATE reddit2.posts SET downvotes=%s WHERE postid=%s", (downV, postid))
+                mysql.connection.commit()
+                
+                
+                #Decreases the karma of the user who posted the post
+                cursor.execute("SELECT karma from reddit2.users WHERE username=%s", (curr_user,))
+                k = cursor.fetchone()[0]
+                k += 1
+                cursor.execute("UPDATE reddit2.users SET karma=%s WHERE username=%s", (k, curr_user))
+                mysql.connection.commit()      
+            
+            return True
+    except Exception as rip:
+        return False     
+    
 #Below, we have our routes
 
 #@app.route('/request/<string:username>/<string: subreddit>')
@@ -228,11 +330,7 @@ def promote_decline(username, subreddit):
 def user_profile():
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT username FROM reddit2.active_users")
-
-    cursortemp = mysql.connection.cursor()
-    cursortemp.execute("SELECT username FROM reddit2.users")
-    testList = cursortemp.fetchall()
-
+    
     curr_user = cursor.fetchone()[0]
     if curr_user != "guest": #Meaning that the person is looking at their own profile
         cursor.execute("SELECT username, karma FROM reddit2.users WHERE username=%s", (curr_user,))
@@ -249,12 +347,11 @@ def user_profile():
             subreddits = []
             
         
-        return render_template("user.html", username=username, karma=karma, subreddits=subreddits, dlist = testList)
+        return render_template("user.html", username=username, karma=karma, subreddits=subreddits)
         
     else: #Someone else is looking at a person's profile, which isn't allowed
         return render_template("home.html")        
 
->>>>>>> Stashed changes
 @app.route("/unsucessful.html", methods=['GET', 'POST'])
 def unsuc():
     return render_template("unsucessful.html")
@@ -286,7 +383,6 @@ def create():
             print("You must be logged in to create a subreddit")
             return redirect("login.html")
     return render_template("create-reddit.html")
-
 
 
 @app.route("/join-reddit.html", methods=["GET", "POST"])
@@ -334,9 +430,6 @@ def dash():
     curr_user = cursor.fetchone()[0]
     
     if curr_user != "guest":
-<<<<<<< Updated upstream
-        return render_template("dashboard.html")
-=======
         cursor.execute("SELECT requester, subreddit FROM reddit2.requests WHERE subreddit IN (SELECT subreddit FROM reddit2.joined WHERE username=%s AND (roles=%s OR roles=%s))", (curr_user, "moderator", "Subreddit Owner"))
         if cursor.rowcount==0:
             requests = []
@@ -344,7 +437,6 @@ def dash():
             requests = cursor.fetchall() 
         return render_template("dashboard.html", requests=requests)
             
->>>>>>> Stashed changes
     else:
         print("You must be logged in to view the dashboard")
         return redirect("login.html")
@@ -401,19 +493,32 @@ def signup():
 def logout():
     cursor = mysql.connection.cursor()
     try:
-        cursor.execute("DELETE FROM active_users",)
+        cursor.execute("DELETE FROM reddit2.active_users",)
         mysql.connection.commit()
-        cursor.execute("INSERT INTO active_users VALUES (%s)", ("guest",))
+        cursor.execute("INSERT INTO reddit2.active_users VALUES (%s)", ("guest",))
         mysql.connection.commit()    
     except:
         pass
     flash("You have successfully logged out")
     return redirect(url_for('home'))
-    
+
+@app.route("/displaySubreddit/", defaults={'subreddit_name' : 'all'})
+@app.route("/displaySubreddit/<name>")
+def displaySubreddit(subreddit_name):
+    if viewSubreddit(subreddit_name):
+        cursor = mysql.connection.cursor()
+        try:
+            posts = cursor.execute("SELECT * FROM reddit2.posts WHERE postid IN (SELECT postid FROM reddit2.posted_in WHERE subreddit = %s))" , subreddit_name)
+            return render_template("displaySubreddit.html", posts=posts)
+        except:
+            return redirect(url_for('home'))
+    else:
+        return redirect(url_for('home'))  
+
 @app.route("/login.html")
 def loginA():
     return redirect(url_for('home'))
-
+    
 if __name__ == "__main__":
     app.run(debug=True)
     
