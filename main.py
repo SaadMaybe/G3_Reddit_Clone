@@ -5,9 +5,13 @@ from logging import currentframe
 from typing import SupportsRound
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_mysqldb import MySQL
+<<<<<<< Updated upstream
 from werkzeug.utils import redirect
 from werkzeug.security import generate_password_hash, check_password_hash
 from Functions import *
+=======
+
+>>>>>>> Stashed changes
 app = Flask(__name__)
 
 app.config['MYSQL_HOST'] = 'localhost'
@@ -144,6 +148,32 @@ def login(input_user, input_password):
     except Exception as rip:
         return False
 
+<<<<<<< Updated upstream
+=======
+def viewSubreddit(subreddit_name):
+    try:
+        cursor = mysql.connection.cursor()
+
+        cursor.execute("SELECT name FROM reddit2.subreddits WHERE name = %s", (subreddit_name))
+
+        if cursor.rowcount == 0:
+            return False
+        else:
+            return True
+    except Exception as ded:
+        return False
+
+# @app.route('/post/', defaults = 'all')
+# @app.route('/post/<postid>')
+# def viewPost(postid):
+#     cursor = mysql.connection.cursor()
+#     cursor.execute("SELECT * FROM reddit2.posts WHERE  = %s", (postid,))
+    
+#     return render_template('post.html', post = cursor.fetchone()[0])
+    
+    
+    
+>>>>>>> Stashed changes
 
 #Below, we have our routes
 
