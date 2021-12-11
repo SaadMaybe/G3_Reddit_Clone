@@ -15,5 +15,12 @@ upvote a post
 cancel an upvote
 downvote a post
 cancel downvote
+<<<<<<< Updated upstream
 view a subreddit -
 view as guest 
+=======
+view a subreddit
+view as guest
+
+Upvotefun(postId, username, subreddit_name)  // buttton red
+>>>>>>> Stashed changes
