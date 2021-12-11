@@ -7,16 +7,18 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_mysqldb import MySQL
 from werkzeug.utils import redirect
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from Functions import *
 app = Flask(__name__)
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '33e0a108'
+app.config['MYSQL_PASSWORD'] = 'SaadAkbar'
 app.config['MYSQL_DB'] = 'reddit2'
 
+app.secret_key = 'secret123'
 mysql = MySQL(app)
 
+<<<<<<< Updated upstream
 #Below, we have our member/helper functions
 
 def joinSubreddit(subreddit_name):
@@ -145,6 +147,90 @@ def login(input_user, input_password):
 
 #Below, we have our routes
 
+=======
+#Below, we have our routes
+
+#@app.route('/request/<string:username>/<string: subreddit>')
+def request_promote(username, subreddit):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT username FROM reddit2.active_users")
+        curr_user = cursor.fetchone()[0]
+    
+        if curr_user == "guest":
+            print("You are not logged in")
+            return render_template(url_for('home'))
+        else:
+            
+            cursor.execute("SELECT requester, subreddit FROM reddit2.requests WHERE requester=%s AND subreddit=%s", (username, subreddit))
+            if cursor.rowcount == 0: 
+                cursor.execute("INSERT INTO reddit2.requests VALUES (%s, %s)", (username, subreddit))
+                mysql.connection.commit()
+            else:
+                print("You have already requested to promote this subreddit")
+                return render_template(url_for('dash'))
+            
+    except Exception as hmm:
+        return render_template(url_for('home'))
+    
+    
+#@app.route('/promote-accept/<string:username>/<string:subreddit>')
+def promote_accept(username, subreddit):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("DELETE FROM reddit.requests WHERE requester=%s AND subreddit=%s", (username, subreddit))
+        mysql.connection.commit()
+        
+        cursor.execute("UPDATE reddit2.joined SET roles=%s WHERE username=%s AND subreddit=%s", ("Moderator", username, subreddit))
+        mysql.connection.commit()
+        
+        return render_template(url_for('dash'))
+    except Exception as hmm:
+        return render_template(url_for('dash'))
+
+#@app.route('/promote-decline/user')
+def promote_decline(username, subreddit):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("DELETE FROM reddit.requests WHERE requester=%s AND subreddit=%s", (username, subreddit))
+        mysql.connection.commit()
+    
+        return render_template(url_for('dash'))
+    except Exception as lol_rejected:
+        return render_template(url_for('dash'))
+    
+
+@app.route("/user.html")
+def user_profile():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT username FROM reddit2.active_users")
+
+    cursortemp = mysql.connection.cursor()
+    cursortemp.execute("SELECT username FROM reddit2.users")
+    testList = cursortemp.fetchall()
+
+    curr_user = cursor.fetchone()[0]
+    if curr_user != "guest": #Meaning that the person is looking at their own profile
+        cursor.execute("SELECT username, karma FROM reddit2.users WHERE username=%s", (curr_user,))
+        if cursor.rowcount == 0:
+            return render_template("home.html")
+        
+        user_details = cursor.fetchone()
+        username = user_details[0]
+        karma = user_details[1]
+        cursor.execute("SELECT subreddit FROM reddit2.joined WHERE username=%s", (curr_user,))
+        if cursor.rowcount != 0:
+            subreddits = cursor.fetchall()
+        else:
+            subreddits = []
+            
+        
+        return render_template("user.html", username=username, karma=karma, subreddits=subreddits, dlist = testList)
+        
+    else: #Someone else is looking at a person's profile, which isn't allowed
+        return render_template("home.html")        
+
+>>>>>>> Stashed changes
 @app.route("/unsucessful.html", methods=['GET', 'POST'])
 def unsuc():
     return render_template("unsucessful.html")
@@ -197,7 +283,7 @@ def join():
             return redirect("login.html")
     return render_template("join-reddit.html")
 
-@app.route("/delete-reddit.html", methods=["GET", "POST"])
+@app.route("/leave-reddit.html", methods=["GET", "POST"])
 def leave():
     if request.method == "POST":
         cursor = mysql.connection.cursor()
@@ -212,7 +298,7 @@ def leave():
         else:
             print("You must be logged in to leave a subreddit")
             return redirect("login.html")
-    return render_template("delete-reddit.html")
+    return render_template("leave-reddit.html")
     
     
     
@@ -224,7 +310,17 @@ def dash():
     curr_user = cursor.fetchone()[0]
     
     if curr_user != "guest":
+<<<<<<< Updated upstream
         return render_template("dashboard.html")
+=======
+        cursor.execute("SELECT requester, subreddit FROM reddit2.requests WHERE subreddit IN (SELECT subreddit FROM reddit2.joined WHERE username=%s AND (roles=%s OR roles=%s))", (curr_user, "moderator", "Subreddit Owner"))
+        if cursor.rowcount==0:
+            requests = []
+        else: 
+            requests = cursor.fetchall() 
+        return render_template("dashboard.html", requests=requests)
+            
+>>>>>>> Stashed changes
     else:
         print("You must be logged in to view the dashboard")
         return redirect("login.html")
@@ -249,10 +345,11 @@ def home():
         password = request.form.get('password')
         if login(username, password): #This function automatically updates curr_user as well
             print("True")
+            flash("You have successfully logged in uwu")
             return redirect(url_for('dash'))
         else:
             print(False)
-            return redirect("sucessful.html")
+            return redirect("unsucessful.html")
         
     return render_template("login.html")
 
@@ -267,7 +364,7 @@ def signup():
             
             val = signup_case(username, password)
             if(val):
-                return redirect(url_for('home'))
+                return redirect(url_for('home'))    
             else:
                 return redirect("/unsucessful.html")
         else:
@@ -286,6 +383,7 @@ def logout():
         mysql.connection.commit()    
     except:
         pass
+    flash("You have successfully logged out")
     return redirect(url_for('home'))
     
 @app.route("/login.html")
