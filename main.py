@@ -8,8 +8,6 @@ from typing import SupportsRound
 from MySQLdb import cursors
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_mysqldb import MySQL
-from werkzeug.utils import redirect
-from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -158,13 +156,13 @@ def viewSubreddit(subreddit_name):
     except Exception as ded:
         return False
 
-@app.route('/post/', defaults = 'all')
-@app.route('/post/<postid>')
-def viewPost(postid):
-    cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM reddit2.posts WHERE  = %s", (postid,))
+# @app.route('/post/', defaults = 'all')
+# @app.route('/post/<postid>')
+# def viewPost(postid):
+#     cursor = mysql.connection.cursor()
+#     cursor.execute("SELECT * FROM reddit2.posts WHERE  = %s", (postid,))
     
-    return render_template('post.html', post = cursor.fetchone()[0])
+#     return render_template('post.html', post = cursor.fetchone()[0])
     
     
     
