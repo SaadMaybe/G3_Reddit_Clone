@@ -8,9 +8,6 @@ from typing import SupportsRound
 from MySQLdb import cursors
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_mysqldb import MySQL
-from werkzeug.utils import redirect
-from werkzeug.security import generate_password_hash, check_password_hash
-from Functions import *
 
 app = Flask(__name__)
 
