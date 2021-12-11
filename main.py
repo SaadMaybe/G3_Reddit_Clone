@@ -6,10 +6,10 @@ from typing import SupportsRound
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_mysqldb import MySQL
 app = Flask(__name__)
-
-app.config['MYSQL_HOST'] = 'localhost'
+#heh, pain
+app.config['MYSQL_HOST'] = 'localhost' 
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'SaadAkbar'
+app.config['MYSQL_PASSWORD'] = '33e0a108'
 app.config['MYSQL_DB'] = 'reddit2'
 
 app.secret_key = 'secret123'
