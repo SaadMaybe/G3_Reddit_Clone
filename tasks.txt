@@ -2,11 +2,7 @@ tasks:
 login to an account
 signup/create an account
 create a subreddit
-view as guest
 join a subreddit
-<<<<<<< Updated upstream
-leave a subreddit
-=======
 leave a subreddit
 
 tasks2:
@@ -21,8 +17,3 @@ downvote a post
 cancel downvote
 view a subreddit -
 view as guest 
-
-
-1. How to display a message if a user tries to access something illegaly
-2. sessions and flashing
->>>>>>> Stashed changes

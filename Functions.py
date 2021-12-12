@@ -1,3 +1,4 @@
+from typing import NewType
 from main import *
 
 def joinSubreddit(subreddit_name):
@@ -135,6 +136,41 @@ def viewSubreddit(subreddit_name):
             return True
     except Exception as ded:
         return False
+
+def PostInSubreddit(subreddit_name,inptitle, inptext):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT username FROM reddit2.active_users")
+    curr_user = cursor.fetchone()[0]
+    inpUsername = curr_user
+    
+    cursortemp = mysql.connection.cursor()
+    cursortemp.execute("SELECT username FROM reddit2.active_users")
+    #tempPostid = cursortemp.fetchall()
+    newPostid = cursortemp.rowcount+1
+    #Check if the subreddit that the user wants to post in exists or not
+    cursor.execute("SELECT name FROM reddit2.subreddits WHERE name=%s", (subreddit_name,))
+    if(cursor.rowcount == 0):
+        print("Subreddit does not exist")
+        return False
+    
+    #Check if the user is not a member of the subreddit
+    cursor.execute("SELECT roles FROM reddit2.joined WHERE username=%s AND subreddit=%s", (inpUsername, subreddit_name))
+    if(cursor.rowcount == 0):
+        print("You have not joined this subreddit subreddit")    
+        return False
+    
+    file_name = "SamplePicture"
+    with open(file_name, 'rb') as file:
+        binary_data = file.read()
+
+    try:
+        cursor.execute("INSERT INTO reddit2.posts VALUES(%i, %s, %s, %s, %s, %i, %i)", (newPostid, curr_user, inptitle, inptext, binary_data, 0, 0))    
+        mysql.connection.commit()
+    except Exception as rip:
+        return False
+        
+    return True
+
 
 # @app.route('/post/', defaults = 'all')
 # @app.route('/post/<postid>')
