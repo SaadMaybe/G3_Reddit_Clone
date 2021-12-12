@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/template.css') }}">
+</head>
+<body>
+<h2 class="mb-3">r/subreddit name</h2>
+<h2>list of subredits</h2>
+<ul>
+<!--    start loop here-->
+  {% for elem in subredditList %}
+    <li>r/{{ elem[0]}}</li>
+  {% endfor %}
+<!--    End loop here-->
+</ul>
+  <form action="" method="POST">
+      <input style="width: 30%" type="text" name="sub_name" placeholder="Subredit Name" class="form-control mb-2">
+      <button class="btn btn-success" name="btn-send"> Go to subredit </button>
+  </form>
+</body>
+
+</html>
