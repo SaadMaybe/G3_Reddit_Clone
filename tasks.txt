@@ -17,7 +17,3 @@ downvote a post
 cancel downvote
 view a subreddit -
 view as guest 
-
-
-1. How to display a message if a user tries to access something illegaly
-2. sessions and flashing

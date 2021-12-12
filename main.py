@@ -14,7 +14,7 @@ app = Flask(__name__)
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '33e0a108'
+app.config['MYSQL_PASSWORD'] = 'SaadAkbar'
 app.config['MYSQL_DB'] = 'reddit2'
 
 mysql = MySQL(app)
@@ -71,51 +71,40 @@ def promote_decline(username, subreddit):
 @app.route('/view_subreddit.html', methods=['GET', 'POST'])
 def subredditLists():
     cursor = mysql.connection.cursor()
-    try:
+    
+    print("Try statement")
+    cursor = mysql.connection.cursor()
+    #If the method is POST, we are going to return the list of posts and redirect to the page
+    if request.method == 'POST':
+        #Get the name of the subreddit to be displayed
+        sub_name = request.form.get('sub_name')
         
-        print("Try statement")
-        cursor = mysql.connection.cursor()
-        #If the method is POST, we are going to return the list of posts and redirect to the page
-        if request.method == 'POST':
-            print("in post condition")
-            # #Get the name of the subreddit to be displayed
-            # sub_name = request.form.get('sub_name')
-            
-            # #Get the names of the posts
-            # cursor.execute('SELECT postid FROM reddit2.posted_in WHERE subreddit=%s', (sub_name,))
-            
-            # #No posts in this subreddit
-            # if cursor.rowcount == 0:
-            #     return redirect(url_for('subredditLists'), postList = ())
-            # else:
-            #     #this tuple will be of the form: ((postID1,), (postID2,), ...)
-            #     postsIDs = cursor.fetchall()
-            #     postList = []
-            #     for everyElement in postsIDs:
-            #         cursor.execute('SELECT * FROM reddit2.posts WHERE postid=%s', (everyElement[0],))
-                    
-            #         if cursor.rowcount == 0:
-            #             continue #How even, this should never happen
-            #         else:
-            #             postList.append(cursor.fetchone()[0])
+        #Get the names of the posts
+        cursor.execute('SELECT postid FROM reddit2.posted_in WHERE subreddit=%s', (sub_name,))
+        
+        #No posts in this subreddit
+        if cursor.rowcount == 0:
+            return redirect(url_for('subredditLists'), postList = ())
+        else:
+            #this tuple will be of the form: ((postID1,), (postID2,), ...)
+            postsIDs = cursor.fetchall()
+            postList = []
+            for everyElement in postsIDs:
+                cursor.execute('SELECT * FROM reddit2.posts WHERE postid=%s', (everyElement[0],))
                 
-            #     return render_template('/page-where-we-display-subreddit.html', postList= postList)
-
-        
-            cursor.execute("SELECT name, description FROM reddit2.subreddits")
-            data = cursor.fetchall()
-            return render_template('view_subreddit.html', subredditList=data)
-        #If the method is GET, then we are going to display the list of subreddits
-        else: 
-            print("GET Method")
-            cursor.execute("SELECT name, description FROM reddit2.subreddits")
+                if cursor.rowcount == 0:
+                    continue #How even, this should never happen
+                else:
+                    postList.append(cursor.fetchone()[0])
             
-            data = cursor.fetchall()
-            return render_template('view_subreddit.html', subredditList=data)
-    except Exception as e:
-        print("This exception is as follows:")
-        print(e)
-        return render_template('view_subreddit.html', subredditList=())
+            return render_template('subreddit_page.html', postList= postList)
+    else: 
+        print("in else condition")
+        cursor.execute("SELECT name, description FROM reddit2.subreddits")
+        
+        data = cursor.fetchall()
+        return render_template('view_subreddit.html', subredditList=data)
+
 
 @app.route("/user.html")
 def user_profile():
@@ -253,7 +242,7 @@ def home():
             return redirect(url_for('dash'))
         else:
             print(False)
-            return redirect("unsucessful.html")
+            return redirect("sucessful.html")
         
     return render_template("login.html")
 

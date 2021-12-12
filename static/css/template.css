@@ -66,3 +66,117 @@ p {
 .p1 a {
   color: white;
 }
+
+.post{
+  border: 1px solid;
+}
+
+/* The container */
+.container {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Create a custom checkbox */
+.checkmark1 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #eee;
+
+}
+.checkmark2 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #eee;
+
+}
+
+
+/* On mouse-over, add a grey background color */
+.container:hover input ~ .checkmark1 {
+  background-color: #ccc;
+
+}
+.container:hover input ~ .checkmark2 {
+  background-color: #ccc;
+
+}
+
+/* When the checkbox is checked, add a blue background */
+.container input:checked ~ .checkmark1 {
+  background-color: #2196F3;
+}
+.container input:checked ~ .checkmark2 {
+  background-color: #2196F3;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark1:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+.checkmark2:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.container input:checked ~ .checkmark1:after {
+  display: block;
+}
+.container input:checked ~ .checkmark2:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.container .checkmark1:after {
+  left: 8px;
+  top: 9px;
+  width: 10px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(
+          45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(
+          225deg);
+}
+.container .checkmark2:after {
+  left: 8px;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(
+          45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(
+          44deg);
+}
