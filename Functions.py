@@ -159,9 +159,9 @@ def PostInSubreddit(subreddit_name,inptitle, inptext):
         print("You have not joined this subreddit subreddit")    
         return False
     
-    file_name = "SamplePicture.jpg"
-    with open(file_name, 'rb') as file:
-        binary_data = file.read()
+    # file_name = "SamplePicture.jpg"
+    # with open(file_name, 'rb') as file:
+    #     binary_data = file.read()
     binary_data = "nothinghere"
     # try:
     cursor.execute("INSERT INTO reddit2.posts VALUES    (%s, %s, %s, %s, %s, %s, %s)", (newPostid, curr_user, inptitle, inptext, binary_data, 0, 0))    

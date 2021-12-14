@@ -111,9 +111,10 @@ def subredditLists():
         sub_name = request.form.get('sub_name')
         #Get the names of the posts
         cursor.execute('SELECT postid FROM reddit2.posted_in WHERE subreddit=%s', (sub_name,))
-        
+        print("Number of rows: ", cursor.rowcount)
         #No posts in this subreddit
-        if cursor.rowcount == 0:
+        if cursor.rowcount == 1:
+            print("Here's the error")
             return redirect(url_for('viewSubredditPage', Dlist = [()], uName = curr_user, sName = sub_name))
         else:
             #this tuple will be of the form: ((postID1,), (postID2,), ...)
