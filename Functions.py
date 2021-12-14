@@ -144,9 +144,9 @@ def PostInSubreddit(subreddit_name,inptitle, inptext):
     inpUsername = curr_user
     
     cursortemp = mysql.connection.cursor()
-    cursortemp.execute("SELECT username FROM reddit2.active_users")
-    #tempPostid = cursortemp.fetchall()
-    newPostid = cursortemp.rowcount+1
+    cursortemp.execute("SELECT max(postid) FROM reddit2.posts")
+    #tempPostid = cursortemp.fetchall() 
+    newPostid = cursortemp.fetchone()[0]+1
     #Check if the subreddit that the user wants to post in exists or not
     cursor.execute("SELECT name FROM reddit2.subreddits WHERE name=%s", (subreddit_name,))
     if(cursor.rowcount == 0):
@@ -159,15 +159,19 @@ def PostInSubreddit(subreddit_name,inptitle, inptext):
         print("You have not joined this subreddit subreddit")    
         return False
     
-    file_name = "SamplePicture"
+    file_name = "SamplePicture.jpg"
     with open(file_name, 'rb') as file:
         binary_data = file.read()
+    binary_data = "nothinghere"
+    # try:
+    cursor.execute("INSERT INTO reddit2.posts VALUES    (%s, %s, %s, %s, %s, %s, %s)", (newPostid, curr_user, inptitle, inptext, binary_data, 0, 0))    
+    cursor.execute("INSERT INTO reddit2.posted_in VALUES    (%s, %s)", (newPostid,subreddit_name))    
+    cursor.execute("INSERT INTO reddit2.posted_by VALUES    (%s, %s)", (curr_user, newPostid))    
 
-    try:
-        cursor.execute("INSERT INTO reddit2.posts VALUES(%i, %s, %s, %s, %s, %i, %i)", (newPostid, curr_user, inptitle, inptext, binary_data, 0, 0))    
-        mysql.connection.commit()
-    except Exception as rip:
-        return False
+    mysql.connection.commit()
+    # except Exception as rip:
+    #     print("exception here")
+    #     return False
         
     return True
 

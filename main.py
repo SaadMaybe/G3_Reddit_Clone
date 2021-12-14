@@ -4,10 +4,12 @@ curr_user = "guest" #Stores the username of the current username
 #A full commitment's what I'm thinking of
 #You wouldn't get this from any other guy
 from logging import currentframe
+from re import sub
 from typing import SupportsRound
 from MySQLdb import cursors
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_mysqldb import MySQL
+import ast
 from Functions import *
 
 app = Flask(__name__)
@@ -18,6 +20,27 @@ app.config['MYSQL_PASSWORD'] = 'SaadAkbar'
 app.config['MYSQL_DB'] = 'reddit2'
 
 mysql = MySQL(app)
+
+@app.route('/makePost.html/<uName>/<sName>', methods = ['GET','POST'])
+def makePostRoute(uName, sName):
+    print("In makePostRoute")
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT username FROM reddit2.active_users")
+    
+    curr_user = cursor.fetchone()[0]
+    sub_name = sName
+    if request.method == 'POST':
+        titletext = request.form.get('title')
+        textText = request.form.get('text')
+        if (PostInSubreddit(sub_name, titletext, textText)):
+            print("successful Post")
+            return redirect(url_for('dash'))
+        else:
+            print("unsuccessful Post")
+            return redirect(url_for('dash'))
+    else:
+        return render_template("makePost.html")
+
 
 #@app.route('/request/<string:username>/<string: subreddit>')
 def request_promote(username, subreddit):
@@ -67,39 +90,45 @@ def promote_decline(username, subreddit):
         return render_template(url_for('dash'))
     except Exception as lol_rejected:
         return render_template(url_for('dash'))
-    
+
+
+@app.route('/subreddit_page.html/<Dlist>/<uName>/<sName>', methods = ['GET','POST'])
+def viewSubredditPage(Dlist, uName, sName):
+
+    s = ast.literal_eval(Dlist)
+    return render_template("subreddit_page.html", Dlist = s, Username = uName, Subreddit = sName)
+
 @app.route('/view_subreddit.html', methods=['GET', 'POST'])
 def subredditLists():
     cursor = mysql.connection.cursor()
+    cursor.execute("SELECT username FROM reddit2.active_users")
     
-    print("Try statement")
-    cursor = mysql.connection.cursor()
+    curr_user = cursor.fetchone()[0]
+    # cursor = mysql.connection.cursor()
     #If the method is POST, we are going to return the list of posts and redirect to the page
     if request.method == 'POST':
         #Get the name of the subreddit to be displayed
         sub_name = request.form.get('sub_name')
-        
         #Get the names of the posts
         cursor.execute('SELECT postid FROM reddit2.posted_in WHERE subreddit=%s', (sub_name,))
         
         #No posts in this subreddit
         if cursor.rowcount == 0:
-            return redirect(url_for('subredditLists'), postList = ())
+            return redirect(url_for('viewSubredditPage', Dlist = [()], uName = curr_user, sName = sub_name))
         else:
             #this tuple will be of the form: ((postID1,), (postID2,), ...)
             postsIDs = cursor.fetchall()
             postList = []
+            jugar = "SamplePic"
             for everyElement in postsIDs:
-                cursor.execute('SELECT * FROM reddit2.posts WHERE postid=%s', (everyElement[0],))
+                cursor.execute('SELECT postid,username,title, text, image, upvotes,downvotes FROM reddit2.posts WHERE postid=%s', (everyElement[0],))
                 
                 if cursor.rowcount == 0:
                     continue #How even, this should never happen
                 else:
-                    postList.append(cursor.fetchone()[0])
-            
-            return render_template('subreddit_page.html', postList= postList)
+                    postList.append(cursor.fetchone())
+            return redirect(url_for('viewSubredditPage', Dlist = postList, uName = curr_user, sName = sub_name))
     else: 
-        print("in else condition")
         cursor.execute("SELECT name, description FROM reddit2.subreddits")
         
         data = cursor.fetchall()
