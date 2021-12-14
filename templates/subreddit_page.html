@@ -133,57 +133,29 @@
   <body>
       <div class="container">
       <!-- Static navbar -->
-      <nav class="navbar navbar-default navbar-fixed-top">
-        <div class="container">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/">Reddit clone </a>
-          </div>
-          <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-              <li><a href="dashboard.html">Home</a></li>
-              <li><a href="search.html">Search</a></li>
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-              <li class="dropdown active primary">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tables<span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                  <li><a href="/comments">Comments</a></li>
-                  <li><a href="/redditors">Redditors</a></li>
-                  <li class="active"><a href="/subreddits">Subreddits</a></li>
-                  <li><a href="/threads">Threads</a></li>
-                </ul>
-              </li>
-            </ul>
-          </div><!--/.nav-collapse -->
-        </div><!--/.container-fluid -->
-      </nav>
-    
+      
     <form method="POST">
 	    <h3 align="center"> Subreddit</h3>
 	     <div class="form-group">
             <label for="username"> {{Username}} </label>
          <br></br>
-		    <label for="subredditname"> {{Subreddit}} </label>
+		    <label for="subredditname"> r/{{Subreddit}} </label>
 		  <br>  
 			
 	    </div>
 <!-- 		<button type="submit" class="btn btn-primary">Save</button> -->
 	</form>
-		<a href="create-reddit.html"><button type="submit" class="btn btn-primary" > Create a post </button></a>
-    
+		<!-- <a href="makePost.html"><button type="submit" class="btn btn-primary" oncli> Create a post </button></a> -->
+    <a href="{{ url_for('makePostRoute', uName = Username, sName = Subreddit) }}"><button>Create a Post</button></a>
+
     
     <div class="container-fluid">
         <h3>All Subreddits</h3>
         <table class="table table-striped table-bordered table-hover table-condensed" id="subreddits">
 	  <thead>
-		<th width="50%">Subreddit Name</th> 
-    <!-- yahan loop start honi hai -->   
+		<th width="50%">Subreddit Name</th>  
+    <!-- yahan loop start honi hai -->
+    <{% for elem in Dlist %}
     <div class="container col-md-8 mt-4">
       <div class="post row">
           <div class=" col-sm-2 p-5">
@@ -191,18 +163,19 @@
                   <input type="checkbox" checked="checked">
                   <span class="checkmark1"></span>
               </label>
-              <label class="pt-2 pl-1" for="checkbox">2</label>
+              <label class="pt-2 pl-1" for="checkbox"> {{elem[5] - elem[6]}} </label>
               <label class="container">
                   <input type="checkbox">
                   <span class="checkmark2"></span>
               </label>
           </div>
           <div class="col-sm-8">
-              <h3>Column 2</h3>
-              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...</p>
+              <h3>{{ elem[2] }}</h3>
+              <p> {{ elem[3] }} </p>
           </div>
       </div>
     </div>
+    {% endfor %}
     <!-- yahan end honi hai -->
 
 	<tr>      

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/template.css') }}">
+    
+</head>
+<body> 
+  <a
+  class="nav-link btn btn-outline-primary text-primary m-1"
+  href="{{ url_for('dash') }}"
+  >Go Back</a>
+    <form method="POST">
+        <h3 align="center">Post</h3>
+        <div class="form-group">
+        <label for="text">Enter Title: </label>
+        <input
+          type="title"
+          class="form-control"
+          id="title"
+          name="title"
+          placeholder="Enter Title"
+        />
+        </div>
+        <div class="form-group">
+              <label for="text">Enter Text</label>
+              <input
+                type="text"
+                class="form-control"
+                id="text"
+                name="text"
+                placeholder="Enter Text"
+              />
+            </div>
+            <br />
+            <button type="submit" class="btn btn-primary">POST</button>
+          </form>
+        </form>      
+
+</body>
+</html>
