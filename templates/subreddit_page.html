@@ -131,9 +131,9 @@
   </head>
 <!-- pass the values of the parameter into html from render template -->
   <body>
+    <a href="{{ url_for('dash')}}"><button>Back to Homepage</button></a>
       <div class="container">
       <!-- Static navbar -->
-      
     <form method="POST">
 	    <h3 align="center"> Subreddit</h3>
 	     <div class="form-group">
@@ -152,9 +152,8 @@
     <div class="container-fluid">
         <h3>All Subreddits</h3>
         <table class="table table-striped table-bordered table-hover table-condensed" id="subreddits">
-	  <thead>
-		<th width="50%">Subreddit Name</th>  
-    <!-- yahan loop start honi hai -->
+
+          <!-- yahan loop start honi hai -->
     <{% for elem in Dlist %}
     <div class="container col-md-8 mt-4">
       <div class="post row">

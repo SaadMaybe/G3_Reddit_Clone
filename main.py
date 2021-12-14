@@ -36,8 +36,7 @@ def makePostRoute(uName, sName):
             print("successful Post")
             return redirect(url_for('dash'))
         else:
-            print("unsuccessful Post")
-            return redirect(url_for('dash'))
+            return redirect(url_for('unsuc', ErrorMessage = "Post failed"))
     else:
         return render_template("makePost.html")
 
@@ -162,9 +161,9 @@ def user_profile():
     else: #Someone else is looking at a person's profile, which isn't allowed
         return render_template("home.html")        
 
-@app.route("/unsucessful.html", methods=['GET', 'POST'])
-def unsuc():
-    return render_template("unsucessful.html")
+@app.route("/unsucessful.html/<ErrorMessage>", methods=['GET', 'POST'])
+def unsuc(ErrorMessage):
+    return render_template("unsucessful.html", message = ErrorMessage)
 
 
 @app.route("/sucessful.html", methods=['GET', 'POST'])
@@ -188,7 +187,7 @@ def create():
             if(createSubreddit(subreddit_name, description)):
                 return redirect("sucessful.html")
             else:
-                return redirect("unsucessful.html")
+                return redirect(url_for("unsuc", ErrorMessage = "Create Subreddit Failed"))
         else:
             print("You must be logged in to create a subreddit")
             return redirect("login.html")
@@ -207,7 +206,7 @@ def join():
             if joinSubreddit(subreddit_name):
                 return redirect("sucessful.html")
             else:
-                return redirect("unsucessful.html")
+                return redirect(url_for("unsuc", ErrorMessage = "Joining Failed"))
         else:
             print("You must be logged in to join a subreddit")
             return redirect("login.html")
@@ -268,11 +267,11 @@ def home():
         username = request.form.get('username')
         password = request.form.get('password')
         if login(username, password): #This function automatically updates curr_user as well
-            print("True")
+            # print("True")
             return redirect(url_for('dash'))
         else:
-            print(False)
-            return redirect("sucessful.html")
+            # print(False)
+            return redirect(url_for("unsuc", ErrorMessage = "Username or password wrong"))
         
     return render_template("login.html")
 
@@ -289,9 +288,8 @@ def signup():
             if(val):
                 return redirect(url_for('home'))
             else:
-                return redirect("/unsucessful.html")
+                return redirect(url_for("unsuc",ErrorMessage = "Signup failed" ))
         else:
-            print("You are already logged in!")
             return redirect("/dashboard.html")
             
     return render_template("signup.html")
@@ -308,18 +306,18 @@ def logout():
         pass
     return redirect(url_for('home'))
 
-@app.route("/displaySubreddit/", defaults={'subreddit_name' : 'all'})
-@app.route("/displaySubreddit/<name>")
-def displaySubreddit(subreddit_name):
-    if viewSubreddit(subreddit_name):
-        cursor = mysql.connection.cursor()
-        try:
-            posts = cursor.execute("SELECT * FROM reddit2.posts WHERE postid IN (SELECT postid FROM reddit2.posted_in WHERE subreddit = %s))" , subreddit_name)
-            return render_template("displaySubreddit.html", posts=posts)
-        except:
-            return redirect(url_for('home'))
-    else:
-        return redirect(url_for('home'))  
+# @app.route("/displaySubreddit/", defaults={'subreddit_name' : 'all'})
+# @app.route("/displaySubreddit/<name>")
+# def displaySubreddit(subreddit_name):
+#     if viewSubreddit(subreddit_name):
+#         cursor = mysql.connection.cursor()
+#         try:
+#             posts = cursor.execute("SELECT * FROM reddit2.posts WHERE postid IN (SELECT postid FROM reddit2.posted_in WHERE subreddit = %s))" , subreddit_name)
+#             return render_template("displaySubreddit.html", posts=posts)
+#         except:
+#             return redirect(url_for('home'))
+#     else:
+#         return redirect(url_for('home'))  
 
 @app.route("/login.html")
 def loginA():
