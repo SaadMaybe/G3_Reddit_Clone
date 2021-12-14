@@ -45,5 +45,13 @@
   <div class="card-body">
     <h5 class="card-title">u/{{username}}</h5>  
     <h5 class="card-title">{{karma}}</h5>
+    <h5> Joined Subreddits: </h5>
+    <ul>
+      <!--    start loop here-->
+        {% for elem in Slist %}
+          <li>r/{{ elem }}</li>
+        {% endfor %}
+      <!--    End loop here-->
+      </ul>
   </div>
 </div>

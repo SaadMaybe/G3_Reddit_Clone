@@ -108,9 +108,12 @@ def subredditLists():
     if request.method == 'POST':
         #Get the name of the subreddit to be displayed
         sub_name = request.form.get('sub_name')
+        cursor.execute('SELECT name FROM reddit2.subreddits WHERE name =%s', (sub_name, ))
+        if cursor.rowcount == 0:
+            return redirect(url_for('unsuc', ErrorMessage = "Subreddit does not exist"))
+            
         #Get the names of the posts
         cursor.execute('SELECT postid FROM reddit2.posted_in WHERE subreddit=%s', (sub_name,))
-        print("Number of rows: ", cursor.rowcount)
         #No posts in this subreddit
         if cursor.rowcount == 1:
             print("Here's the error")
@@ -146,7 +149,14 @@ def user_profile():
         if cursor.rowcount == 0:
             return render_template("home.html")
         
+
         user_details = cursor.fetchone()
+        cursor.execute("SELECT Subreddit FROM reddit2.joined WHERE username=%s", (curr_user,))
+        SlistTemp = cursor.fetchall()
+        Slist = []
+
+        for i in SlistTemp:
+            Slist.append(i[0])
         username = user_details[0]
         karma = user_details[1]
         cursor.execute("SELECT subreddit FROM reddit2.joined WHERE username=%s", (curr_user,))
@@ -155,8 +165,7 @@ def user_profile():
         else:
             subreddits = []
             
-        
-        return render_template("user.html", username=username, karma=karma, subreddits=subreddits)
+        return render_template("user.html", username=username, karma=karma, subreddits=subreddits, Slist = Slist)
         
     else: #Someone else is looking at a person's profile, which isn't allowed
         return render_template("home.html")        
@@ -165,11 +174,9 @@ def user_profile():
 def unsuc(ErrorMessage):
     return render_template("unsucessful.html", message = ErrorMessage)
 
-
 @app.route("/sucessful.html", methods=['GET', 'POST'])
 def suc():
     return render_template("sucessful.html")
-
 
 #These routes are for creating, joining, and leaving a subreddit
 @app.route("/create-reddit.html", methods=["GET", "POST"])
@@ -193,14 +200,15 @@ def create():
             return redirect("login.html")
     return render_template("create-reddit.html")
 
-
 @app.route("/join-reddit.html", methods=["GET", "POST"])
 def join():
+    cursor = mysql.connection.cursor()
     if request.method == "POST":
-        cursor = mysql.connection.cursor()
         cursor.execute("SELECT username FROM reddit2.active_users")
         curr_user = cursor.fetchone()[0]
         
+        # cursor.execute("SELECT name FROM reddit2.subreddits WHERE ")
+
         if curr_user != "guest":
             subreddit_name = request.form.get("subreddit_name1")
             if joinSubreddit(subreddit_name):
@@ -210,7 +218,13 @@ def join():
         else:
             print("You must be logged in to join a subreddit")
             return redirect("login.html")
-    return render_template("join-reddit.html")
+    
+    cursor.execute("SELECT t1.name FROM reddit2.subreddits t1 LEFT JOIN joined t2 ON t2.subreddit = t1.name WHERE t2.username IS NULL")
+    SlistTemp = cursor.fetchall()
+    Slist = []
+    for i in SlistTemp:
+        Slist = SlistTemp[0]
+    return render_template("join-reddit.html", Slist = Slist)
 
 @app.route("/delete-reddit.html", methods=["GET", "POST"])
 def leave():
