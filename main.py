@@ -129,7 +129,7 @@ def subredditLists():
                     postList.append(cursor.fetchone())
             return redirect(url_for('viewSubredditPage', Dlist = postList, uName = curr_user, sName = sub_name))
     else: 
-        cursor.execute("SELECT name, description FROM reddit2.subreddits")
+        cursor.execute("SELECT subreddit FROM reddit2.joined WHERE username = %s", (curr_user,))
         
         data = cursor.fetchall()
         return render_template('view_subreddit.html', subredditList=data)
