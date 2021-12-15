@@ -1,5 +1,15 @@
 from typing import NewType
-# from app import *
+from app import *
+
+
+app = Flask(__name__)
+
+app.config['MYSQL_HOST'] = 'us-cdbr-east-05.cleardb.net'
+app.config['MYSQL_USER'] = 'bc581d899a9288'
+app.config['MYSQL_PASSWORD'] = '019c7e40'
+app.config['MYSQL_DB'] = 'heroku_0b525497a3fc037'
+
+mysql = MySQL(app)
 
 def joinSubreddit(subreddit_name):
     try:
