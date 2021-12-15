@@ -1,5 +1,5 @@
 from typing import NewType
-from app import *
+# from app import *
 
 def joinSubreddit(subreddit_name):
     try:
