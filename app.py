@@ -195,12 +195,11 @@ def create():
             subreddit_name = request.form.get("subreddit_name1")
             description = request.form.get("description1")
 
-            if(createSubreddit(subreddit_name, description)):
+            if createSubreddit(subreddit_name, description):
                 return redirect("sucessful.html")
             else:
                 return redirect(url_for("unsuc", ErrorMessage = "Create Subreddit Failed"))
         else:
-            print("You must be logged in to create a subreddit")
             return redirect("login.html")
     return render_template("create-reddit.html")
 
@@ -226,7 +225,8 @@ def join():
             return redirect("login.html")
     
     # cursor.execute("SELECT t1.name FROM heroku_0b525497a3fc037.subreddits t1 LEFT JOIN joined t2 ON t2.subreddit = t1.name WHERE t2.username IS NULL")
-    cursor.execute("SELECT name FROM heroku_0b525497a3fc037.subreddits EXCEPT SELECT subreddit FROM heroku_0b525497a3fc037.joined WHERE username = %s", (curr_user,))
+    cursor.execute("SELECT name FROM subreddits WHERE NOT EXISTS (SELECT subreddit FROM joined WHERE username = %s)", (curr_user,))
+    #   cursor.execute("SELECT name FROM heroku_0b525497a3fc037.subreddits EXCEPT SELECT subreddit FROM heroku_0b525497a3fc037.joined WHERE username = %s", (curr_user,))
     SlistTemp = cursor.fetchall()
     print(SlistTemp)
     Slist = []
@@ -245,7 +245,7 @@ def leave():
             if leaveSubredditCase(subreddit_name):
                 return redirect("sucessful.html")
             else:
-                return redirect("unsucessful.html")
+                return redirect(url_for("unsuc", ErrorMessage = "you are the owner of this subreddit"))
         else:
             print("You must be logged in to leave a subreddit")
             return redirect("login.html")
