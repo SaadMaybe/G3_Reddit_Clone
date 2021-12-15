@@ -95,11 +95,22 @@ def promote_decline(username, subreddit):
         return render_template(url_for('dash'))
 
 
-@app.route('/subreddit_page.html/<Dlist>/<uName>/<sName>', methods = ['GET','POST'])
+@app.route('/emptySub.html/<Dlist>/<uName>/<sName>', methods = ['GET','POST'])
 def viewSubredditPage(Dlist, uName, sName):
 
+    s2 = []
     s = ast.literal_eval(Dlist)
+    s2.append(s)
+    print(Dlist[0])
+    if Dlist[0] == '(':
+        return render_template("subreddit_page.html", Dlist = s2, Username = uName, Subreddit = sName)
     return render_template("subreddit_page.html", Dlist = s, Username = uName, Subreddit = sName)
+
+
+@app.route('/emptySub.html/<Dlist>/<uName>/<sName>', methods = ['GET','POST'])
+def viewEmptySubredditPage(Dlist, uName, sName):
+    s = ast.literal_eval(Dlist)
+    return render_template("emptySub.html", Dlist = s, Username = uName, Subreddit = sName)
 
 @app.route('/view_subreddit.html', methods=['GET', 'POST'])
 def subredditLists():
@@ -120,8 +131,19 @@ def subredditLists():
         cursor.execute('SELECT postid FROM heroku_0b525497a3fc037.posted_in WHERE subreddit=%s', (sub_name,))
         #No posts in this subreddit
         if cursor.rowcount == 1:
-            print("Here's the error")
-            return redirect(url_for('viewSubredditPage', Dlist = [()], uName = curr_user, sName = sub_name))
+            postsIDs = cursor.fetchall()
+            postList = []
+            jugar = "SamplePic"
+            for everyElement in postsIDs:
+                cursor.execute('SELECT postid,username,title, text, image, upvotes,downvotes FROM heroku_0b525497a3fc037.posts WHERE postid=%s', (everyElement[0],))
+                
+                if cursor.rowcount == 0:
+                    continue #How even, this should never happen
+                else:
+                    postList.append(cursor.fetchone())
+            return redirect(url_for('viewSubredditPage', Dlist = postList, uName = curr_user, sName = sub_name))
+        if cursor.rowcount == 0:
+            return redirect(url_for('viewEmptySubredditPage', Dlist = [()], uName = curr_user, sName = sub_name))           
         else:
             #this tuple will be of the form: ((postID1,), (postID2,), ...)
             postsIDs = cursor.fetchall()
@@ -140,6 +162,7 @@ def subredditLists():
         
         data = cursor.fetchall()
         return render_template('view_subreddit.html', subredditList=data)
+
 
 
 @app.route("/user.html")
