@@ -130,6 +130,8 @@ def subredditLists():
         #Get the names of the posts
         cursor.execute('SELECT postid FROM heroku_0b525497a3fc037.posted_in WHERE subreddit=%s', (sub_name,))
         #No posts in this subreddit
+        if cursor.rowcount == 0:
+            return redirect(url_for('viewEmptySubredditPage', Dlist = [()], uName = curr_user, sName = sub_name))           
         if cursor.rowcount == 1:
             postsIDs = cursor.fetchall()
             postList = []
@@ -142,8 +144,6 @@ def subredditLists():
                 else:
                     postList.append(cursor.fetchone())
             return redirect(url_for('viewSubredditPage', Dlist = postList, uName = curr_user, sName = sub_name))
-        if cursor.rowcount == 0:
-            return redirect(url_for('viewEmptySubredditPage', Dlist = [()], uName = curr_user, sName = sub_name))           
         else:
             #this tuple will be of the form: ((postID1,), (postID2,), ...)
             postsIDs = cursor.fetchall()
