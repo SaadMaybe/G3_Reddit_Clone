@@ -100,9 +100,9 @@ def viewSubredditPage(Dlist, uName, sName):
 
     s2 = []
     s = ast.literal_eval(Dlist)
-    s2.append(s)
     print(Dlist[0])
     if Dlist[0] == '(':
+        s2 = [("","","No Posts","","",0,0)]
         return render_template("subreddit_page.html", Dlist = s2, Username = uName, Subreddit = sName)
     return render_template("subreddit_page.html", Dlist = s, Username = uName, Subreddit = sName)
 
