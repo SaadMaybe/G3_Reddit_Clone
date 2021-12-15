@@ -248,13 +248,13 @@ def join():
             return redirect("login.html")
     
     # cursor.execute("SELECT t1.name FROM heroku_0b525497a3fc037.subreddits t1 LEFT JOIN joined t2 ON t2.subreddit = t1.name WHERE t2.username IS NULL")
-    cursor.execute("SELECT name FROM subreddits WHERE NOT EXISTS (SELECT subreddit FROM joined WHERE username = %s)", (curr_user,))
+    cursor.execute("SELECT name FROM subreddits")
     #   cursor.execute("SELECT name FROM heroku_0b525497a3fc037.subreddits EXCEPT SELECT subreddit FROM heroku_0b525497a3fc037.joined WHERE username = %s", (curr_user,))
     SlistTemp = cursor.fetchall()
     print(SlistTemp)
     Slist = []
     for i in SlistTemp:
-        Slist = SlistTemp[0]
+        Slist.append(i[0])
     return render_template("join-reddit.html", Slist = Slist)
 
 @app.route("/delete-reddit.html", methods=["GET", "POST"])
