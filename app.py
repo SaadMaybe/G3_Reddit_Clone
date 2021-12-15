@@ -21,6 +21,10 @@ app.config['MYSQL_DB'] = 'heroku_0b525497a3fc037'
 
 mysql = MySQL(app)
 
+
+#--------------------------------------------------------------------------------------------------------------
+
+
 @app.route('/makePost.html/<uName>/<sName>', methods = ['GET','POST'])
 def makePostRoute(uName, sName):
     print("In makePostRoute")

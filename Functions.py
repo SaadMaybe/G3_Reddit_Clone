@@ -89,12 +89,13 @@ def leaveSubredditCase(subreddit_name):
         return False
 
 def signup_case(username, passwd):
-    cursor = mysql.connection.cursor()
+    cursor = mysql.connect.cursor()
     success = 0
 
     try:
         success = cursor.execute("INSERT INTO heroku_0b525497a3fc037.users VALUES(%s, %s, %s)", (username, 0, passwd))
-        mysql.connection.commit()
+        # mysql.connection.commit()
+        cursor.connection.commit()
     except Exception as it_is_what_it_is:
         print("excepion caught")
         pass
